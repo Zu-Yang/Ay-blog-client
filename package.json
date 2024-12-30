@@ -1,0 +1,43 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build --dotenv .env.production",
+    "dev": "nuxt dev --dotenv .env.development",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@ant-design/colors": "^7.1.0",
+    "@mdi/font": "^7.4.47",
+    "@pinia-plugin-persistedstate/nuxt": "^1.2.1",
+    "@pinia/nuxt": "^0.5.4",
+    "@wangeditor/editor": "^5.1.23",
+    "@wangeditor/editor-for-vue": "^5.1.12",
+    "compressorjs": "^1.2.1",
+    "medium-zoom": "^1.1.0",
+    "nprogress": "^0.2.0",
+    "nuxt": "^3.12.3",
+    "nuxt-swiper": "^1.2.2",
+    "nuxtjs-naive-ui": "^1.0.2",
+    "pinia": "^2.2.2",
+    "scrollreveal": "^4.0.9",
+    "unplugin-auto-import": "^0.18.2",
+    "unplugin-vue-components": "^0.27.4",
+    "uuid": "^11.0.3",
+    "vue": "latest"
+  },
+  "devDependencies": {
+    "@pinia-plugin-persistedstate/nuxt": "^1.2.1",
+    "@types/node": "^22.5.4",
+    "@types/nprogress": "^0.2.3",
+    "@vueuse/core": "^11.1.0",
+    "@vueuse/nuxt": "^11.1.0",
+    "naive-ui": "^2.40.2",
+    "sass": "^1.77.8",
+    "sass-loader": "^16.0.1",
+    "vite-plugin-svg-icons": "^2.0.1"
+  }
+}
