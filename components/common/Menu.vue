@@ -92,6 +92,7 @@ watch(
 
 <style lang="scss" scoped>
 .nav {
+  min-width: 1024px;
   position: fixed;
   top: 0px;
   left: 0px;
@@ -100,17 +101,18 @@ watch(
   z-index: 10;
   transition: var(--transition);
   &.nav-bg {
-    // box-shadow: var(--box-shadow-3);
-    // background-color: var(--bg-nav-color);
-    // /* 半透明背景 */
-    // backdrop-filter: blur(4px);
-    // /* 背景模糊 */
-    // -webkit-backdrop-filter: blur(4px);
+    box-shadow: var(--box-shadow-3);
+    background-color: var(--bg-nav-color);
+    /* 半透明背景 */
+    backdrop-filter: blur(10px);
+    /* 背景模糊 */
+    -webkit-backdrop-filter: blur(10px);
 
-    background-image: radial-gradient(transparent 1px, var(--bg-color) 1px);
-    background-size: 4px 4px;
-    backdrop-filter: saturate(50%) blur(4px);
-    -webkit-backdrop-filter: saturate(50%) blur(4px);
+    /* 背景网格 */
+    // background-image: radial-gradient(transparent 1px, var(--bg-color) 1px);
+    // background-size: 4px 4px;
+    // backdrop-filter: saturate(50%) blur(4px);
+    // -webkit-backdrop-filter: saturate(50%) blur(4px);
   }
 }
 :deep(.n-menu .n-menu-item) {

@@ -4,7 +4,7 @@ const $http = useHttp();
 export const usePage = defineStore("page", () => {
   const data = {
     curPage: 0, // 当前页数
-    limit: 9, // 每页数量
+    limit: 6, // 每页数量
     count: 0, // 总页数
     total: 0, // 总数据量
     dataList: [] as any, // 详细数据

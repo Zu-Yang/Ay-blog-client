@@ -22,7 +22,7 @@ body {
 
 .medium-zoom-overlay,
 .medium-zoom-image--opened {
-  z-index: 9;
+  z-index: 8;
 }
 
 .bg-grid {

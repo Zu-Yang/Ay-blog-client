@@ -5,6 +5,7 @@
       style="
         height: calc(100vh - 80px);
         border-top: 1px solid var(--w-e-toolbar-border-color);
+        scrollbar-width: thin;
       "
       v-model="html"
       :defaultConfig="editorConfig"
@@ -69,7 +70,7 @@ const editorChange = async (editor) => {
         return `<li id="${id}" type="${type}">${text}</li>`;
       })
       .join("");
-    $emit("getHtml", { html: htmlContent, content_title });
+    $emit("getHtml", { html: htmlContent });
     headerContainer.value.innerHTML = content_title;
   }
 };
@@ -174,6 +175,7 @@ onMounted(() => {
   });
   nextTick(() => {
     const wangEditor = document.querySelector(".w-e-scroll");
+    wangEditor.style.scrollbarWidth = "thin"; // 滚动条宽度
     wangEditor.addEventListener("scroll", (event) => {
       const scrollTop = event.target.scrollTop;
       offsetArr.value.forEach((item, index) => {

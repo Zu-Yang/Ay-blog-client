@@ -53,7 +53,11 @@ const vIndex = ref<number>(0);
 const url = ref<string>("https://api.yujn.cn/api/zzxjj.php?type=video");
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
+.n-drawer {
+  background-color: transparent;
+  backdrop-filter: blur(100px);
+}
 .video-drawer {
   width: 100%;
   height: 100%;

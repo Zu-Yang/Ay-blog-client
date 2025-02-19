@@ -6,19 +6,19 @@
       </div>
       <div class="info">
         <span>
-          <SvgIcon name="time" size="14" />
+          <SvgIcon name="time" size="16" />
           <n-time :time="new Date(articleInfo.article_create_time)" type="date" />
         </span>
         <span>
-          <nuxt-link :to="`/category/${articleInfo.category_id}`">
-            <SvgIcon name="link" size="14" />
+          <RouterLink class="category" :to="`/category/${articleInfo.category_id}`">
+            <SvgIcon name="link" size="16" />
             {{ articleInfo.category.category_name }}
-          </nuxt-link>
+          </RouterLink>
         </span>
-        <span>
-          <SvgIcon name="read" size="14" />
+        <!-- <span>
+          <SvgIcon name="browse" size="14" />
           {{ readCount || articleInfo.article_read_count }}
-        </span>
+        </span> -->
       </div>
       <div class="summary">
         <div class="title">
@@ -34,8 +34,56 @@
           <ul id="anchor-container" class="anchor-list"></ul>
         </div>
         <div class="article-content" v-html="contentHtml"></div>
+        <div class="sidebar">
+          <div class="item thumb" @click="likeHandle">
+            <n-tooltip trigger="hover" placement="left">
+              <template #trigger>
+                <div class="content">
+                  <SvgIcon
+                    name="thumb2"
+                    size="34"
+                    :color="likeStatus ? 'var(--theme-color)' : ''"
+                  ></SvgIcon>
+                  <span>
+                    {{ likeCount || articleInfo.article_like_count }}
+                  </span>
+                </div>
+              </template>
+              <span>{{ likeStatus ? "つ♡⊂" : "点赞つ♡⊂" }} </span>
+            </n-tooltip>
+          </div>
+          <div class="item browse">
+            <n-tooltip trigger="hover" placement="left">
+              <template #trigger>
+                <div class="content">
+                  <SvgIcon name="browse" size="34" />
+                  <span>
+                    {{ readCount || articleInfo.article_read_count }}
+                  </span>
+                </div>
+              </template>
+              <span> 阅读つ♡⊂ </span>
+            </n-tooltip>
+          </div>
+          <div class="item comment" @click="commentShow = true">
+            <n-tooltip trigger="hover" placement="left">
+              <template #trigger>
+                <div class="content">
+                  <SvgIcon name="comment" size="34" />
+                  <span> </span>
+                </div>
+              </template>
+              <span> 评论つ♡⊂ </span>
+            </n-tooltip>
+          </div>
+        </div>
       </div>
     </n-el>
+    <Comment
+      :show="commentShow"
+      :articleId="parseInt($route.params.id)"
+      @change="(show) => (commentShow = show)"
+    ></Comment>
   </article>
 </template>
 
@@ -46,24 +94,23 @@ import { v4 as uuid4 } from "uuid";
 /* composables S */
 const $route = useRoute();
 const $http = useHttp();
+const { message } = useDiscreteApi();
 /* composables E */
 
-/* menu start */
-const { navBg } = toRefs(useMenu());
-navBg.value = true;
-/* menu end */
-
 /* 数据声明 S */
-const { articleInfo } = useDetail();
-const local = useLocal();
-const { ip } = toRefs(local);
+const { navBg } = toRefs(useMenu());
+const { getIP } = useLocal();
+const { articleInfo, articleCount, visitorInfo } = useDetail();
 
 const navHeight = ref<number>(0);
-const readCount = ref<number>(0);
+const likeStatus = ref<boolean>(false);
+const commentShow = ref<boolean>(false);
+const readCount = ref<number>(articleCount.readCount);
+const likeCount = ref<number>(articleCount.likeCount);
 const offset = <any[]>[];
-// 使用正则表达式为所有标题元素添加 id 属性
 const anchorList = <string[]>[];
 const headerIds = <string[]>[];
+
 const contentHtml = articleInfo.article_content.replace(
   /<(h[1-5])([^>]*)>(.*?)<\/(h[1-5])>/g,
   (match: string, tagName: string, attrs: string, title: string) => {
@@ -82,7 +129,7 @@ definePageMeta({
     async (to, from) => {
       const { getDetail } = useDetail();
       try {
-        const id = to.params.id as string | number;
+        const id = parseInt(to.params.id as string);
         await getDetail(id);
         return true;
       } catch (error) {
@@ -91,6 +138,41 @@ definePageMeta({
     },
   ],
 });
+
+const likeHandle = async () => {
+  const id = parseInt($route.params.id as string);
+  const { country, short_name, province, city, area, isp, net, ip } = await getIP();
+  const res = await $http.article.setLikeStatus({
+    country,
+    short_name,
+    province,
+    city,
+    area,
+    isp,
+    net,
+    ip,
+    article_id: id,
+    status: !likeStatus.value,
+  });
+
+  if (res.code == 200) {
+    visitorInfo.likeList.push({
+      article_id: parseInt(id),
+      status: !likeStatus.value,
+    });
+    likeStatus.value = !likeStatus.value;
+    likeCount.value = res.data.likeCount;
+    likeStatus.value && message.success("点赞成功");
+    !likeStatus.value && message.success("取消点赞");
+  }
+};
+
+const setLikeStatus = async () => {
+  const id = $route.params.id;
+  visitorInfo.likeList.forEach((item: any) => {
+    if (item.id == id) likeStatus.value = item.status;
+  });
+};
 
 const scrollHandle = (event: Event) => {
   event.preventDefault();
@@ -110,8 +192,10 @@ const scrollHandle = (event: Event) => {
 const scroll = () => {
   headerIds.forEach((id) => {
     const el = document.querySelector(`.article-content #${id}`) as HTMLElement;
-    const top = Math.floor(el.getBoundingClientRect().top + window.scrollY); // 计算目标元素的绝对位置
-    offset.push({ id, top });
+    if (el) {
+      const top = Math.floor(el.getBoundingClientRect().top + window.scrollY); // 计算目标元素的绝对位置
+      offset.push({ id, top });
+    }
   });
 
   window.addEventListener("scroll", scrollHandle);
@@ -160,18 +244,6 @@ const changeImage = () => {
   });
   useScrollReveal(".article-content .img-area");
 };
-
-const setReadCount = async () => {
-  try {
-    if (!ip.value.length) await local.getIP();
-    const res = await $http.article.readCount({ article_id: $route.params.id, ip });
-    if (res.code == 200) {
-      readCount.value = res.data.readCount;
-    }
-  } catch (error) {
-    console.error(error);
-  }
-};
 /* 应用程序 E */
 
 /* 生命周期 S */
@@ -179,12 +251,15 @@ onMounted(async () => {
   useScrollReveal(".scroll-animation");
   setAnchor();
   changeImage();
-  scroll();
-  setReadCount();
-  navHeight.value = document.querySelector(".layout-wrap .nav")?.clientHeight as number;
+  setLikeStatus(); // 点赞状态
   useHead({
     title: articleInfo.article_title || "文章详情",
   });
+  navBg.value = true; // 设置menu背景
+  navHeight.value = document.querySelector(".layout-wrap .nav")?.clientHeight as number;
+  setTimeout(() => {
+    scroll();
+  }, 1000);
 });
 onBeforeUnmount(() => {
   window.removeEventListener("scroll", scrollHandle);
@@ -195,10 +270,9 @@ onBeforeUnmount(() => {
 
 <style lang="scss">
 .article-detail-wrap {
-  margin-top: 100px;
   .container {
     width: 768px;
-    margin: 0px auto;
+    margin: 100px auto 0;
     .title {
       text-align: center;
       font-size: 24px;
@@ -206,13 +280,18 @@ onBeforeUnmount(() => {
     .info {
       margin-top: 25px;
       text-align: center;
-
+      display: flex;
+      justify-content: center;
       span {
         margin: 0 10px;
-
-        a {
+        display: flex;
+        align-items: center;
+        .svg-icon {
+          margin-right: 5px;
+        }
+        .category {
+          display: inline-block;
           color: var(--text-color-2);
-          transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
       }
     }
@@ -222,7 +301,6 @@ onBeforeUnmount(() => {
       border: 1px solid var(--border-color);
       box-shadow: var(--box-shadow-1);
       border-radius: var(--border-radius);
-      transition: border 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
       .title {
         margin-bottom: 10px;
@@ -239,13 +317,39 @@ onBeforeUnmount(() => {
       position: relative;
       top: 50px;
       .anchor-wrap {
-        width: 200px;
+        display: inline-block;
         position: sticky;
         top: 50px;
         left: 100%;
         transform: translateX(100%);
-        padding-left: 20px;
-        box-sizing: border-box;
+        padding-left: 40px;
+      }
+      .sidebar {
+        position: sticky;
+        bottom: 80px;
+        left: 0%;
+        transform: translateX(-100%);
+        padding-right: 40px;
+        display: inline-block;
+        z-index: 101;
+        .item {
+          cursor: pointer;
+          margin-bottom: 10px;
+          .content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+          }
+          .svg-icon {
+            transition: var(--transition);
+            &:hover {
+              transform: scale(1.05);
+            }
+            &:active {
+              transform: scale(0.95);
+            }
+          }
+        }
       }
       .anchor-list {
         position: absolute;
@@ -257,7 +361,6 @@ onBeforeUnmount(() => {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-        transition: var(--transition);
       }
 
       .anchor-list li:hover {

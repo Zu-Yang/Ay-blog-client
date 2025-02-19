@@ -6,6 +6,8 @@
 </template>
 
 <script lang="ts" setup>
+const { navBg } = toRefs(useMenu());
+
 definePageMeta({
   title: "关于我",
   middleware: [
@@ -24,6 +26,7 @@ definePageMeta({
 
 /* menu start */
 onMounted(() => {
+  navBg.value = false;
   useMenuBg(); // 类似mixin用法
 });
 /* menu end */

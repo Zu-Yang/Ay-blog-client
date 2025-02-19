@@ -79,7 +79,6 @@ const form = reactive({
   summary:
     "在未来，人工智能将显著改变我们的生活方式，提升生产力和效率。与此同时，环境保护成为全球关注的焦点，个人应从小事做起，积极参与环保行动。此外，文化交流促进了不同民族之间的理解与合作，通过艺术和文学的互动，丰富了人们的生活，推动了全球化进程。尊重和欣赏多元文化是实现和平与发展的关键。",
   html: "",
-  content_title: "", // 锚点标题
   categoryId: null, // 不能是数字否则规则验证会出错
   coverFileList: [],
 });
@@ -126,7 +125,6 @@ const submit = (e: MouseEvent) => {
         article_summary: form.summary,
         article_cover: cover,
         article_content: form.html,
-        article_content_title: form.content_title,
       };
       const res = await $http.article.addArticles(params);
       if (res.code == 200) {
@@ -143,9 +141,8 @@ const submit = (e: MouseEvent) => {
 
 /* 文章封面图相关 S */
 // 获取标编辑器内容
-const getHtml = (data: { html: string; content_title: string }) => {
+const getHtml = (data: { html: string }) => {
   form.html = data.html;
-  form.content_title = data.content_title;
 };
 // 获取编辑器图片
 const getEditorImages = () => {

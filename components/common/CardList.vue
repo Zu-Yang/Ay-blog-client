@@ -76,6 +76,7 @@ const { data } = usePage();
 :deep(.n-list) {
   overflow: hidden;
   border-radius: 15px;
+  border: none;
   .swiper-wrap {
     width: 100%;
     height: 200px;
@@ -178,6 +179,7 @@ const { data } = usePage();
   }
 
   .n-thing-main__content {
+    height: 67px;
     color: var(--color1);
     display: -webkit-box;
     -webkit-box-orient: vertical;

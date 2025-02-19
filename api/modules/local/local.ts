@@ -1,7 +1,7 @@
 import { fetch } from "~/utils/http";
 
 export default {
-  getIP() {
-    return fetch("/api/local/getIP", { methods: "GET" });
+  getIpInfo() {
+    return fetch("/api/local/getUserIp", { methods: "GET" });
   },
 };

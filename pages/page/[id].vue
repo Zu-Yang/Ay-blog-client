@@ -1,6 +1,7 @@
 <template>
   <div class="page-container">
     <FullBanner></FullBanner>
+    <!-- <HalfBanner></HalfBanner> -->
     <CardList></CardList>
   </div>
 </template>
@@ -11,10 +12,12 @@ definePageMeta({
   middleware: [
     async (to, from) => {
       const { getArticleList, getBanner } = usePage();
+      const { getIP } = useLocal();
       try {
-        const page = Number(to.params.id); // 从路由参数中获取
-        await getArticleList(page);
-        await getBanner({ bucketName: "banner-images" });
+        const pageId = Number(to.params.id);
+        await getIP();
+        await getArticleList(pageId);
+        // await getBanner({ bucketName: "banner-images", prefix: "halfscreen" });
         return true;
       } catch (err) {
         console.error(err);

@@ -3,13 +3,9 @@
     <n-image
       object-fit="cover"
       preview-disabled
-      lazy
       fallback-src="https://img.imgdd.com/f210f3.219114e2-69fe-43f6-9d28-ef21deb64ad6.jpg"
       :img-props="{ style: 'width:110%; height:100%' }"
       :src="fullBannerUrl"
-      :intersection-observer-options="{
-        root: '#banner',
-      }"
     >
       <template #placeholder>
         <div
@@ -23,7 +19,7 @@
             background-color: var(--bg-color);
           "
         >
-          Loading
+          <div>loading</div>
         </div>
       </template>
     </n-image>
@@ -32,8 +28,10 @@
 
 <script setup lang="ts">
 const { fullBannerUrl } = toRefs(usePage());
+const { getBanner } = usePage();
 
 onMounted(async () => {
+  await getBanner({ bucketName: "banner-images" });
   useBanner("#banner");
 });
 </script>

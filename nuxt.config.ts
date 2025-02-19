@@ -29,6 +29,7 @@ export default defineNuxtConfig({
       },
     },
   },
+
   // 全局变量
   runtimeConfig: {
     // apiSecret 只能在服务器端上访问
@@ -39,12 +40,15 @@ export default defineNuxtConfig({
       imageBaseURL: process.env.MINIO_ARTICLE_IMAGE_API_BASE, // minio api地址
     },
   },
+
   imports: {
     // Auto-import pinia stores defined in `~/stores`
     dirs: ["~/stores", "~/composables"],
   },
+
   ssr: false,
   plugins: [],
+
   modules: [
     "nuxt-swiper",
     "nuxtjs-naive-ui",
@@ -65,10 +69,12 @@ export default defineNuxtConfig({
       },
     ],
   ],
+
   devServer: {
-    host: "0.0.0.0",
+    host: "http://10.4.32.45/",
     port: 8080,
   },
+
   router: {
     options: {
       // 其他路由配置...
@@ -76,6 +82,7 @@ export default defineNuxtConfig({
       // scrollBehaviorType: "smooth",
     },
   },
+
   vite: {
     plugins: [
       // svg图标
@@ -101,6 +108,7 @@ export default defineNuxtConfig({
       }),
     ],
   },
+
   // 自动导入components组件
   components: [
     {
@@ -108,22 +116,27 @@ export default defineNuxtConfig({
       pathPrefix: false,
     },
   ],
+
   build: {},
   devtools: { enabled: false },
+
   css: [
     "~/assets/css/main.min.css",
     "~/assets/css/reset.css",
     "~/assets/css/root.css",
   ],
+
   // https://nuxt.com/docs/api/configuration/nuxt-config
+  // compatibilityDate: "2024-09-13",
   nitro: {
     devProxy: {
       "/api": {
-        // target: "http://10.4.32.45:3000",
-        target: process.env.NUXT_PUBLIC_API_BASE,
+        target: "http://10.4.32.45:3000",
+        // target: process.env.NUXT_PUBLIC_API_BASE,
         changeOrigin: true,
       },
     },
   },
-  // compatibilityDate: "2024-09-13",
+
+  compatibilityDate: "2024-12-30",
 });

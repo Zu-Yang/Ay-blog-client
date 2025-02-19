@@ -9,7 +9,35 @@ export type pagination = {
   limit: number;
 };
 
-export type readCount = {
+export type commentList = {
+  biz_id: number;
+  biz_type: string;
+  page: number;
+  limit: number;
+};
+
+export type comment = {
+  nick_name: string,
+  user_email: string,
+  user_avatar: string,
+  user_ip: number,
+  jump_url: string,
+  biz_type: string,
+  biz_id: number,
+  comment_id: number,
+  reply_ip?: string,
+  parent_id: number,
+  content: string,
+  deleted: number,
+  approved: number
+}
+
+export type likeStatus = {
+  article_id: number;
+  status: boolean;
+};
+
+export type setCount = {
   article_id: number;
   ip: string;
 };
