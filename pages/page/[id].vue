@@ -1,7 +1,6 @@
 <template>
-  <div class="page-container">
+  <div class="overflow-hidden">
     <FullBanner></FullBanner>
-    <!-- <HalfBanner></HalfBanner> -->
     <CardList></CardList>
   </div>
 </template>
@@ -11,15 +10,20 @@ definePageMeta({
   title: "首页",
   middleware: [
     async (to, from) => {
-      const { getArticleList, getBanner } = usePage();
+      const { getArticleList, getBanner, getCategory, sortType } = usePage();
       const { getIP } = useLocal();
+      const { $nprogress } = useNuxtApp();
       try {
+        $nprogress.start();
         const pageId = Number(to.params.id);
         await getIP();
-        await getArticleList(pageId);
-        // await getBanner({ bucketName: "banner-images", prefix: "halfscreen" });
+        await getArticleList({ page: pageId, orderBy: sortType }); // 默认最新排序
+        await getCategory();
+        await getBanner({ bucketName: "banner-images" });
+        $nprogress.done();
         return true;
       } catch (err) {
+        $nprogress.done();
         console.error(err);
         return abortNavigation(err as string);
       }

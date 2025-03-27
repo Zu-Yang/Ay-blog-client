@@ -14,10 +14,11 @@ const props = defineProps({
 });
 
 const option = reactive({
-  loop: true,
+  loop: false,
   scrollbar: {
     hide: true, // 不触发时隐藏scrollbar
   },
+  speed: 500,
   slidesPerView: 1,
   modules: [Scrollbar],
   autoplay: false,
@@ -54,6 +55,7 @@ onUnmounted(() => {
       @swiper="onSwiper"
       @slideChange="onSlideChange"
       :loop="option.loop"
+      :speed="option.speed"
       :effect="option.effect"
       :modules="option.modules"
       :autoplay="option.autoplay"
@@ -90,14 +92,18 @@ onUnmounted(() => {
   </div>
 </template>
 
-<style>
+<style lang="scss" scoped>
+.swiper-wrap {
+  width: 100%;
+  height: 100%;
+}
 .swiper {
   width: 100%;
   height: 100%;
 }
 .swiper-wrapper {
-  min-width: 100vh;
-  width: 100vh;
+  min-width: 100%;
+  width: 100%;
 }
 .swiper-slide {
   display: flex;
@@ -127,7 +133,6 @@ onUnmounted(() => {
   position: absolute;
   top: 50%;
   background-color: var(--button-color);
-  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   /* transform: translateY(-50%); */
   cursor: pointer;
   z-index: 10;

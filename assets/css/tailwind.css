@@ -1,0 +1,4 @@
+@tailwind utilities;
+@import "tailwindcss/preflight";
+@import "tailwindcss";
+@import "./tailwind-custom.min.css";

@@ -8,60 +8,46 @@
     class="bg-grid"
   >
     <n-global-style />
-    <n-loading-bar-provider>
-      <NuxtLayout>
-        <NuxtLoadingIndicator />
-        <NuxtPage keepalive />
-      </NuxtLayout>
-    </n-loading-bar-provider>
-    <FlaotButton
-      v-if="$route.meta.layout !== '404'"
-      @changeTheme="getThemeOverrides"
-      @changeThemeMode="getThemeMode"
-    />
+    <NuxtLayout>
+      <NuxtLoadingIndicator />
+      <NuxtPage keepalive />
+    </NuxtLayout>
+    <Live2d />
+    <n-back-top />
   </n-config-provider>
 </template>
 <script setup lang="ts">
 /* import start*/
-import { h } from 'vue'
-import { ref, onMounted } from "vue"; // 确保引入 onMounted
-import { darkTheme, zhCN, NAvatar, NImage, dateZhCN, type GlobalTheme, type GlobalThemeOverrides } from "naive-ui";
-import { fetch } from '#build/imports';
+import { zhCN, dateZhCN } from "naive-ui";
 /* import end */
 
 /* composables start */
-const { loadingBar, notification } = useDiscreteApi();
-const $router = useRouter();
+const { getThemeConfig, setThemeConfig } = useTheme();
+const { themeOverrides, themeMode } = toRefs(useTheme());
 const $route = useRoute();
 /* composables end */
 
 /* theme start */
-const themeOverrides = ref<GlobalThemeOverrides>({});
-const themeMode = ref<GlobalTheme | null>(null); // null为亮色，darkTheme为暗色
-const getThemeOverrides = (commonColors: object) => {
-  themeOverrides.value.common = commonColors;
+const initTheme = () => {
+  const themeConfig = getThemeConfig();
+  setThemeConfig(themeConfig);
 };
-const getThemeMode = (value: boolean) => {
-  themeMode.value = value ? darkTheme : null;
-  const html = document.getElementsByTagName("html")[0] as HTMLElement;
-  if (value) {
-    html.className = "dark";
-  } else {
-    html.className = "light";
-  }
-};
+initTheme();
 /* theme end */
 
 /* useHead S */
-watch(() =>$route.meta.title,()=>{
-  if(!$route.meta.title) return
-  useHead({
-    title: $route.meta.title || "Ayang Blog",
-  });
-},{
-  immediate:true,
-  deep:false
-})
+watch(
+  () => $route.meta.title,
+  () => {
+    if (!$route.meta.title) return;
+    useHead({
+      title: $route.meta.title || "Ayang Blog",
+    });
+  },
+  {
+    immediate: true,
+  }
+);
 /* useHead E */
 </script>
 

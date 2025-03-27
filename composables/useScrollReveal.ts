@@ -1,4 +1,4 @@
-import ScrollReveal from "scrollReveal";
+import ScrollReveal from "scrollreveal";
 
 export default (target: any) =>
   ScrollReveal().reveal(target, {

@@ -1,25 +1,15 @@
 <template>
-  <div class="layout-wrap">
-    <Menu :navBg="navBg"></Menu>
+  <div class="layout-default">
+    <AppHeader />
     <NuxtPage />
     <AppFooter />
     <Drawer />
   </div>
 </template>
 
-<script lang="ts" setup>
-import { ref, onMounted, computed } from "vue"; // 确保引入 onMounted
-
-const menu = useMenu();
-const { navBg } = toRefs(menu); // 使用 toRefs 保持响应性
-</script>
+<script lang="ts" setup></script>
 
 <style lang="scss">
-.layout-wrap {
-  min-width: 1024px;
-  transition: var(--transition);
-}
-
 .slide-enter-active,
 .slide-leave-active {
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);

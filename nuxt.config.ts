@@ -3,6 +3,7 @@ import Components from "unplugin-vue-components/vite";
 import { NaiveUiResolver } from "unplugin-vue-components/resolvers";
 import path from "path";
 import { createSvgIconsPlugin } from "vite-plugin-svg-icons";
+import tailwindcss from '@tailwindcss/vite'
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -14,19 +15,13 @@ export default defineNuxtConfig({
     head: {
       charset: "utf-8",
       viewport: "width=device-width, initial-scale=1",
-      link: [{ rel: "icon", type: "image/x-icon", href: "/logo.jpg" }],
+      link: [{ rel: "icon", type: "image/x-icon", href: "public/favicon.ico" }],
       script: [
-        {
-          // src: "https://api.suyanw.cn/api/mouse/yinghua.js",
-          // tagPosition: "bodyClose", // 有关操作dom的js需要插入body后,否则获取不到dom
-          // async: true,
-          // defer: true,
-        },
+        { src: '/live2d/static/l2d.js' },
+        { src: '/live2d/static/pio.js' }
       ],
       htmlAttrs: {},
-      bodyAttrs: {
-        class: "",
-      },
+      bodyAttrs: {},
     },
   },
 
@@ -50,6 +45,7 @@ export default defineNuxtConfig({
   plugins: [],
 
   modules: [
+    "@formkit/auto-animate/nuxt",
     "nuxt-swiper",
     "nuxtjs-naive-ui",
     "@vueuse/nuxt",
@@ -85,6 +81,7 @@ export default defineNuxtConfig({
 
   vite: {
     plugins: [
+      tailwindcss(),
       // svg图标
       createSvgIconsPlugin({
         iconDirs: [path.resolve(process.cwd(), "assets/images/svg")], // 存放svg的文件夹
@@ -121,9 +118,10 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
 
   css: [
-    "~/assets/css/main.min.css",
-    "~/assets/css/reset.css",
     "~/assets/css/root.css",
+    "~/assets/css/tailwind.css",
+    "~/assets/css/reset.min.css",
+    "~/public/live2d/static/pio.css",
   ],
 
   // https://nuxt.com/docs/api/configuration/nuxt-config
@@ -137,6 +135,5 @@ export default defineNuxtConfig({
       },
     },
   },
-
   compatibilityDate: "2024-12-30",
 });

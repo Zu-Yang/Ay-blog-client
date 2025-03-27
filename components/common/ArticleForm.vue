@@ -1,47 +1,154 @@
 <template>
-  <div class="article-wrap">
-    <n-form class="form-wrap" ref="formRef" :model="form" :rules="rules">
-      <n-form-item>
-        <n-button attr-type="submit" type="primary" block circle @click="submit">
-          发布
-        </n-button>
-      </n-form-item>
-      <n-form-item label="封面图" path="">
-        <n-upload
-          accept="image/*"
-          list-type="image-card"
-          :default-upload="true"
-          multiple
-          :max="5"
-          v-model:file-list="form.coverFileList"
-          :custom-request="customRequest"
-          @remove="handleRemove"
-        />
-      </n-form-item>
-      <n-form-item label="标题" path="title">
-        <n-input v-model:value="form.title" type="text" placeholder="标题" />
-      </n-form-item>
-      <n-form-item label="分类" path="categoryId">
-        <n-select v-model:value="form.categoryId" :options="categoryArr" clearable />
-      </n-form-item>
-      <n-form-item label="是否置顶" path="top">
-        <n-select
-          v-model:value="form.top"
-          :options="[
-            { label: '置顶', value: 1 },
-            { label: '非置顶', value: 0 },
-          ]"
-        />
-      </n-form-item>
-      <n-form-item label="摘要" path="summary">
-        <n-input v-model:value="form.summary" type="textarea" :rows="10" />
-      </n-form-item>
-    </n-form>
-    <WangEditor
-      ref="wangEditorRef"
-      @getHtml="getHtml"
-      @getEditorImages="getEditorImages"
-    />
+  <div class="">
+    <div class="max-lg:w-full max-lg:px-4 max-md:px-0 flex max-w-256 m-auto">
+      <n-form
+        class="pr-4 w-[256px] md:block hidden sticky top-4 z-10 h-max"
+        ref="formRef"
+        :model="form"
+        :rules="rules"
+      >
+        <n-form-item>
+          <n-popconfirm
+            positive-text="确认"
+            negative-text="取消"
+            @positive-click="submit"
+            @negative-click=""
+          >
+            <template #icon>
+              <SvgIcon name="article" color="var(--theme-color)"></SvgIcon>
+            </template>
+            <template #trigger>
+              <n-button attr-type="submit" type="primary" block circle> 发布 </n-button>
+            </template>
+            确认发布
+          </n-popconfirm>
+        </n-form-item>
+        <n-form-item label="封面图" path="">
+          <n-upload
+            accept="image/*"
+            list-type="image-card"
+            :default-upload="true"
+            multiple
+            :max="5"
+            v-model:file-list="form.coverFileList"
+            :custom-request="customRequest"
+            @remove="handleRemove"
+          />
+        </n-form-item>
+        <n-form-item label="标题" path="title">
+          <n-input v-model:value="form.title" type="text" placeholder="标题" />
+        </n-form-item>
+        <n-form-item label="分类" path="categoryId">
+          <n-select v-model:value="form.categoryId" :options="categoryArr" clearable />
+        </n-form-item>
+        <n-form-item label="是否置顶" path="top">
+          <n-select
+            v-model:value="form.top"
+            :options="[
+              { label: '置顶', value: 1 },
+              { label: '非置顶', value: 0 },
+            ]"
+          />
+        </n-form-item>
+        <n-form-item label="摘要" path="summary">
+          <n-input v-model:value="form.summary" type="textarea" :rows="10" />
+        </n-form-item>
+      </n-form>
+
+      <WangEditor
+        ref="wangEditorRef"
+        @getHtml="getHtml"
+        @getEditorImages="getEditorImages"
+      />
+    </div>
+
+    <div class="md:hidden block">
+      <n-button
+        class="fixed left-1/2 bottom-4 -translate-x-1/2 z-10"
+        strong
+        secondary
+        round
+        @click="drawerShow = true"
+      >
+        打开配置
+      </n-button>
+      <n-drawer
+        v-model:show="drawerShow"
+        placement="bottom"
+        height="73vh"
+        style="background-color: transparent"
+        :content-style="{
+          backgroundColor: 'var(--comment-bg-color)',
+          backdropFilter: 'blur(8px)',
+          overflow: 'hidden',
+          borderTopLeftRadius: '24px',
+          borderTopRightRadius: '24px',
+        }"
+      >
+        <n-drawer-content
+          closable
+          title="配置选项"
+          :body-content-style="{
+            scrollbarWidth: 'thin',
+          }"
+        >
+          <n-form ref="formRef" :model="form" :rules="rules">
+            <n-form-item label="标题" path="title">
+              <n-input v-model:value="form.title" type="text" placeholder="标题" />
+            </n-form-item>
+            <n-form-item label="摘要" path="summary">
+              <n-input v-model:value="form.summary" type="textarea" :rows="5" />
+            </n-form-item>
+            <n-form-item label="分类" path="categoryId">
+              <n-select
+                v-model:value="form.categoryId"
+                :options="categoryArr"
+                clearable
+              />
+            </n-form-item>
+            <n-form-item label="是否置顶" path="top">
+              <n-select
+                v-model:value="form.top"
+                :options="[
+                  { label: '置顶', value: 1 },
+                  { label: '非置顶', value: 0 },
+                ]"
+              />
+            </n-form-item>
+            <n-form-item label="封面图" path="">
+              <n-upload
+                accept="image/*"
+                list-type="image-card"
+                :default-upload="true"
+                multiple
+                :max="5"
+                v-model:file-list="form.coverFileList"
+                :custom-request="customRequest"
+                @remove="handleRemove"
+              />
+            </n-form-item>
+            <n-form-item>
+              <n-popconfirm
+                positive-text="确认"
+                negative-text="取消"
+                @positive-click="submit"
+                @negative-click=""
+              >
+                <template #icon>
+                  <SvgIcon name="article" color="var(--theme-color)"></SvgIcon>
+                </template>
+                <template #trigger>
+                  <n-button attr-type="submit" type="primary" block circle>
+                    发布
+                  </n-button>
+                </template>
+                确认发布
+              </n-popconfirm>
+            </n-form-item>
+          </n-form>
+        </n-drawer-content>
+      </n-drawer>
+    </div>
   </div>
 </template>
 
@@ -53,20 +160,25 @@ import type {
   UploadInst,
   UploadCustomRequestOptions,
 } from "naive-ui";
+import { useWindowSize } from "@vueuse/core";
+
+const appConfig = useAppConfig();
+const { width, height } = useWindowSize();
 
 const $config = useRuntimeConfig();
 const baseURL = $config.public.baseURL;
 const $http = useHttp();
 const $message = useDiscreteApi().message;
 const { categoryInfo } = useArticle();
-const formRef = ref<FormInst | null>(null);
+
 const categoryArr = ref<object[]>([
   ...categoryInfo.map((item) => {
     return { value: String(item.category_id), label: item.category_name };
   }),
 ]);
-
+const formRef = ref<FormInst | null>(null);
 const wangEditorRef = ref();
+const drawerShow = ref(false);
 const form = reactive({
   // updateUserId: 1,
   // userId: 1,
@@ -104,6 +216,16 @@ const rules = ref({
     trigger: "change",
   },
 });
+
+watch(
+  () => width.value,
+  (newVal) => {
+    if (newVal > appConfig.bp.md) {
+      drawerShow.value = false;
+    }
+  },
+  { immediate: true }
+);
 
 // 提交文章数据
 const submit = (e: MouseEvent) => {
@@ -209,25 +331,21 @@ const handleRemove = async (options: {
 /* 文章封面图相关 E */
 </script>
 
-<style lang="scss">
-.article-wrap {
+<style lang="scss" scoped>
+:deep(.n-upload-file-list) {
   display: flex;
-}
-.form-wrap {
-  width: 300px;
-  padding: 0 20px;
-  .n-upload-file-list {
-    display: flex;
-    flex-wrap: wrap;
-    .n-upload-file {
-      width: 100%;
-      img {
-        object-fit: cover !important;
-      }
+  flex-wrap: wrap;
+
+  .n-upload-file {
+    width: 100%;
+
+    img {
+      object-fit: cover !important;
     }
-    .n-upload-trigger {
-      width: 100%;
-    }
+  }
+
+  .n-upload-trigger {
+    width: 100%;
   }
 }
 </style>

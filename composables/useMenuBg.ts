@@ -1,9 +1,10 @@
 export const useMenuBg = () => {
+  const appConfig = useAppConfig()
   const { navBg } = toRefs(useMenu());
   const height = ref<number>(0);
   const scrollHandle = (e: Event) => {
     const scrollY = window.scrollY; // 获取垂直滚动偏移量
-    if (scrollY >= height.value - 50) {
+    if (scrollY >= height.value - appConfig.navH) {
       navBg.value = true;
     } else {
       navBg.value = false;

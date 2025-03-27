@@ -1,19 +1,40 @@
 <template>
-  <div :class="['nav', { 'nav-bg': props.navBg }]">
-    <n-space justify="center">
-      <n-menu
-        mode="horizontal"
-        :value="menuKey"
-        :options="menuOptions"
-        :on-update:value="(key: string, item: MenuOption) => menuKey = key"
-      />
-    </n-space>
-  </div>
+  <nav
+    :class="[
+      'h-(--navH) flex items-center justify-center fixed top-0 left-0 right-0 w-full z-[1001] transition-all shadow-[0_0px_15px_var(--bg-nav-color)] backdrop-filter-[blur(16px)]',
+      {
+        'bg-[var(--bg-nav-color)]': props.navBg,
+        '-translate-y-full': isHidden,
+      },
+    ]"
+    :style="{
+      '--navH': appConfig.navH + 'px',
+    }"
+  >
+    <div
+      :class="[
+        'text-sm mx-4 relative line-clamp-1 text-nowrap group',
+        { 'text-[var(--theme-color)]': activeKey === item.name },
+      ]"
+      v-for="(item, index) in navOption"
+      :key="index"
+      @click="activeKey = item.name"
+    >
+      <nuxt-link class="inline-block py-2" :to="`${item.path}`">{{
+        item.title
+      }}</nuxt-link>
+      <span
+        class="absolute bottom-0 left-0 w-full h-[2px] bg-[var(--theme-color)] transition-all duration-300 opacity-0 scale-x-0 origin-center group-hover:opacity-100 group-hover:scale-x-100"
+        :class="{ 'opacity-100 scale-x-100': activeKey === item.name }"
+      ></span>
+    </div>
+  </nav>
 </template>
 
 <script lang="ts" setup>
-import type { MenuOption } from "naive-ui";
 import { RouterLink, useRouter, useRoute } from "vue-router";
+
+const appConfig = useAppConfig();
 const $route = useRoute();
 const props = defineProps({
   navBg: {
@@ -21,105 +42,62 @@ const props = defineProps({
     defalt: false,
   },
 });
-const menuKey = ref<string>("page-id");
-const menuOptions: MenuOption[] = [
+
+const activeKey = ref<string>("page-id");
+const isHidden = ref(false);
+let lastScrollTop = 0;
+
+// 监听滚动事件
+onMounted(() => {
+  window.addEventListener("scroll", handleScroll);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("scroll", handleScroll);
+});
+
+// 处理滚动逻辑
+const handleScroll = () => {
+  const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+  // 向下滚动时隐藏导航栏，向上滚动时显示导航栏
+  if (currentScrollTop > lastScrollTop && currentScrollTop > 100) {
+    isHidden.value = true;
+  } else {
+    isHidden.value = false;
+  }
+  lastScrollTop = currentScrollTop;
+};
+
+const navOption = [
   {
-    label: () =>
-      h(
-        RouterLink,
-        {
-          to: {
-            name: "index",
-            params: {},
-          },
-        },
-        { default: () => "🏠首页" }
-      ),
-    key: "page-id",
+    path: "/",
+    name: "page-id",
+    title: "🏠首页",
   },
   {
-    label: () =>
-      h(
-        RouterLink,
-        {
-          to: {
-            name: "article-editor",
-            params: {},
-          },
-        },
-        { default: () => "💤写文章" }
-      ),
-    key: "article-editor",
+    path: "/article/editor",
+    name: "article-editor",
+    title: "💤写文章",
   },
   {
-    label: () =>
-      h(
-        RouterLink,
-        {
-          to: {
-            name: "about",
-            params: {},
-          },
-        },
-        { default: () => "💤关于" }
-      ),
-    key: "about",
+    path: "/about",
+    name: "about",
+    title: "💤关于",
   },
-  {
-    label: () =>
-      h(
-        RouterLink,
-        {
-          to: {
-            name: "result-404",
-            params: {},
-          },
-        },
-        { default: () => "👽404" }
-      ),
-    key: "result-404",
-  },
+  // {
+  //   path: "/result-404",
+  //   name: "result-404",
+  //   title: "👽404",
+  // },
 ];
 
 watch(
   () => $route.path,
   () => {
-    menuKey.value = $route.name as string;
+    activeKey.value = $route.name as string;
   },
   { immediate: true }
 );
 </script>
 
-<style lang="scss" scoped>
-.nav {
-  min-width: 1024px;
-  position: fixed;
-  top: 0px;
-  left: 0px;
-  right: 0px;
-  width: 100%;
-  z-index: 10;
-  transition: var(--transition);
-  &.nav-bg {
-    box-shadow: var(--box-shadow-3);
-    background-color: var(--bg-nav-color);
-    /* 半透明背景 */
-    backdrop-filter: blur(10px);
-    /* 背景模糊 */
-    -webkit-backdrop-filter: blur(10px);
-
-    /* 背景网格 */
-    // background-image: radial-gradient(transparent 1px, var(--bg-color) 1px);
-    // background-size: 4px 4px;
-    // backdrop-filter: saturate(50%) blur(4px);
-    // -webkit-backdrop-filter: saturate(50%) blur(4px);
-  }
-}
-:deep(.n-menu .n-menu-item) {
-  height: 50px;
-}
-
-:deep(.n-menu .n-menu-item-content--selected) {
-  border-bottom: 2px solid var(--n-item-text-color-active) !important;
-}
-</style>
+<style lang="scss" scoped></style>

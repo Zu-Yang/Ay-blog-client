@@ -1,5 +1,5 @@
 <template>
-  <div class="affix" ref="affix">
+  <div class="affix relative" ref="affix">
     <slot></slot>
   </div>
 </template>
@@ -64,8 +64,4 @@ onUnmounted(() => {
 });
 </script>
 
-<style lang="scss">
-.affix {
-  position: relative;
-}
-</style>
+<style lang="scss"></style>

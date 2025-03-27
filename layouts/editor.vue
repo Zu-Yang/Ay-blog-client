@@ -1,13 +1,7 @@
 <template>
-  <div class="layout-wrap">
+  <div>
     <NuxtPage class="layput-editor" />
   </div>
 </template>
 
-<style lang="scss" scoped>
-.layput-editor {
-  width: 1200px;
-  height: 100vh;
-  margin: 0 auto;
-}
-</style>
+<style lang="scss" scoped></style>

@@ -1,26 +1,14 @@
 <template>
-  <div class="banner" id="banner">
+  <div class="relative h-[50vh] overflow-hidden lg:h-[100vh]" id="banner">
     <n-image
       object-fit="cover"
       preview-disabled
       fallback-src="https://img.imgdd.com/f210f3.219114e2-69fe-43f6-9d28-ef21deb64ad6.jpg"
-      :img-props="{ style: 'width:110%; height:100%' }"
-      :src="fullBannerUrl"
+      :img-props="{ style: 'width:110%; max-width:110%; height:100%' }"
+      src="http://10.4.32.45:9000/banner-images/717d527514dc41e58a9ab23269912617.jpg"
     >
       <template #placeholder>
-        <div
-          style="
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--color);
-            background-color: var(--bg-color);
-          "
-        >
-          <div>loading</div>
-        </div>
+        <div class="size-full flex items-center justify-center">loading</div>
       </template>
     </n-image>
   </div>
@@ -28,23 +16,10 @@
 
 <script setup lang="ts">
 const { fullBannerUrl } = toRefs(usePage());
-const { getBanner } = usePage();
 
 onMounted(async () => {
-  await getBanner({ bucketName: "banner-images" });
   useBanner("#banner");
 });
 </script>
 
-<style lang="scss" scoped>
-.banner {
-  position: relative;
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
-  .n-image {
-    width: 100%;
-    height: 100%;
-  }
-}
-</style>
+<style lang="scss" scoped></style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="layout-wrap">
+  <div>
     <NuxtPage class="layput-404" />
   </div>
 </template>

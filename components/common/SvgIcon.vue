@@ -5,34 +5,35 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed } from "vue"
+import { ref, computed } from "vue";
 
 const props = defineProps({
   name: {
     type: String,
-    default: ''
+    default: "",
   },
   color: {
     type: String,
-    default: ''
+    default: "",
   },
   size: {
     type: String,
-    default: ''
+    default: "",
   },
-})
+});
 
-const iconName = computed(() => `#icon-${props.name}`)
+const iconName = computed(() => `#icon-${props.name}`);
 const svgClass = computed(() => {
   if (props.name) {
-    return `svg-icon icon-${props.name}`
+    return `svg-icon icon-${props.name}`;
   }
-  return "svg-icon"
-})
+  return "svg-icon";
+});
 </script>
 
 <style lang="scss" scoped>
 .svg-icon {
+  display: inline-block;
   width: 1em;
   height: 1em;
   fill: currentColor;

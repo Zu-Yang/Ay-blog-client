@@ -1,19 +1,23 @@
 <template>
-  <div class="editor">
-    <Toolbar :editor="editorRef" :defaultConfig="toolbarConfig" />
-    <Editor
-      style="
-        height: calc(100vh - 80px);
-        border-top: 1px solid var(--w-e-toolbar-border-color);
-        scrollbar-width: thin;
-      "
-      v-model="html"
-      :defaultConfig="editorConfig"
-      @onCreated="(editor) => (editorRef = editor)"
-      @onChange="editorChange"
-    />
-    <!-- 标题目录 -->
-    <ul id="anchor-container"></ul>
+  <div class="flex w-full lg:w-[calc(1024px-256px)]">
+    <div class="w-[calc(1024px-256px-150px)]">
+      <Toolbar
+        class="sticky top-0 z-10 h-max overflow-hidden border-b-1 border-b-(--w-e-toolbar-border-color)"
+        :editor="editorRef"
+        :defaultConfig="toolbarConfig"
+      />
+      <Editor
+        class="h-[calc(100vh-120px)]! lg:h-[calc(100vh-160px)]! max-md:h-[calc(100vh-80px)]!"
+        v-model="html"
+        :defaultConfig="editorConfig"
+        @onCreated="(editor) => (editorRef = editor)"
+        @onChange="editorChange"
+      />
+      <!-- 标题目录 -->
+    </div>
+    <div class="w-[150px] h-max sticky top-[120px] z-10 pl-4 hidden lg:block">
+      <ul id="anchor-container" class=""></ul>
+    </div>
   </div>
 </template>
 <script setup>
@@ -201,58 +205,44 @@ defineExpose({ historyImage });
 /* 暴露变量 E */
 </script>
 
-<style lang="scss">
-.editor {
-  max-width: 700px;
-  height: 100%;
-  position: relative;
-}
-#anchor-container {
-  list-style-type: none;
-  padding-left: 20px;
-  box-sizing: border-box;
-  width: 200px;
-  position: absolute;
-  top: 80px;
-  right: -200px;
-  z-index: 110;
-}
+<style lang="scss" scoped>
+:deep(#anchor-container) {
+  li {
+    margin-bottom: 10px;
+    cursor: pointer;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: var(--transition);
+  }
 
-#anchor-container li {
-  margin: 10px 0;
-  cursor: pointer;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  transition: var(--transition);
-}
+  li:hover {
+    text-decoration: underline;
+  }
 
-#anchor-container li:hover {
-  text-decoration: underline;
-}
+  li[type="header1"] {
+    font-size: 18px;
+    font-weight: bold;
+  }
 
-#anchor-container li[type="header1"] {
-  font-size: 18px;
-  font-weight: bold;
-}
+  li[type="header2"] {
+    font-size: 16px;
+    padding-left: 15px;
+  }
 
-#anchor-container li[type="header2"] {
-  font-size: 16px;
-  padding-left: 15px;
-}
+  li[type="header3"] {
+    font-size: 14px;
+    padding-left: 30px;
+  }
 
-#anchor-container li[type="header3"] {
-  font-size: 14px;
-  padding-left: 30px;
-}
+  li[type="header4"] {
+    font-size: 12px;
+    padding-left: 45px;
+  }
 
-#anchor-container li[type="header4"] {
-  font-size: 12px;
-  padding-left: 45px;
-}
-
-#anchor-container li[type="header5"] {
-  font-size: 12px;
-  padding-left: 60px;
+  li[type="header5"] {
+    font-size: 12px;
+    padding-left: 60px;
+  }
 }
 </style>

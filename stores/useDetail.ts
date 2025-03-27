@@ -1,14 +1,14 @@
 import { defineStore } from "pinia";
-import NProgress from "nprogress";
-// import "nprogress/nprogress.css";
 const $http = useHttp();
 
 
 export const useDetail = defineStore("detail", () => {
   const articleInfo = reactive<any>({});
   const articleCount = reactive<any>({
+    commentCount: 0,
     readCount: 0,
-    likeCount: 0
+    likeCount: 0,
+    likeStatus: false,
   });
   const visitorInfo = reactive({
     likeList: [] as { article_id: number, status: boolean }[]
@@ -17,13 +17,11 @@ export const useDetail = defineStore("detail", () => {
   const getDetail = async (article_id: number) => {
     const { getIP } = useLocal();
     try {
-      NProgress.start();
       const ip_info = await getIP();
       const ip = ip_info?.ip;
       const requestList = [
         $http.article.getDetail(article_id),
-        $http.article.getLikeList(ip),
-        $http.article.setCount({ article_id, ip })
+        $http.article.getCount({ article_id, ip })
       ];
       const res = await Promise.all(requestList)
 
@@ -31,15 +29,14 @@ export const useDetail = defineStore("detail", () => {
         Object.assign(articleInfo, res[0].data);
       }
       if (res[1].code == 200) {
-        Object.assign(visitorInfo, { likeList: res[1].data })
+        Object.assign(articleCount, {
+          commentCount: res[0].data.article_comment_count,
+          readCount: res[1].data.readCount,
+          likeCount: res[1].data.likeCount,
+          likeStatus: res[1].data.likeStatus,
+        })
       }
-      if (res[2].code == 200) {
-        Object.assign(articleCount, res[2].data)
-      }
-
-      NProgress.done();
     } catch (error) {
-      NProgress.done();
       console.error(error);
     }
   };

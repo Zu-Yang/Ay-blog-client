@@ -1,7 +1,6 @@
 <template>
   <div class="about-page">
     <HalfBanner></HalfBanner>
-    <div></div>
   </div>
 </template>
 
@@ -13,11 +12,16 @@ definePageMeta({
   middleware: [
     async (to, from) => {
       const { getBanner } = usePage();
+      const { $nprogress } = useNuxtApp();
       try {
+        $nprogress.start();
+        /* 默认全屏图prefix:"", 半屏图prefix:"halfBanner" */
         await getBanner({ bucketName: "banner-images", prefix: "halfscreen" });
+        $nprogress.done();
         return true;
       } catch (err) {
         console.error(err);
+        $nprogress.done();
         return abortNavigation(err as string);
       }
     },

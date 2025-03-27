@@ -1,0 +1,14 @@
+@layer base {
+  // 自定义动画写法
+  .--animate-autoHeight {
+    animation: autoHeight 0.3s ease-out forwards;
+  }
+  @keyframes autoHeight {
+    from {
+      height: 0;
+    }
+    to {
+      height: auto;
+    }
+  }
+}

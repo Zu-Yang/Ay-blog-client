@@ -16,7 +16,9 @@ export const useBanner = (containerId: string) => {
   }
   targetImg.style.position = "absolute";
   targetImg.style.width = "110%";
+  // targetImg.style.maxWidth = "110%";
   targetImg.style.height = "100%";
+  targetImg.style.top = "0%";
   targetImg.style.left = "-5%";
   targetImg.style.objectFit = "cover";
   targetImg.style.pointerEvents = "none";
