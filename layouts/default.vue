@@ -3,7 +3,9 @@
     <AppHeader />
     <NuxtPage />
     <AppFooter />
-    <Drawer />
+    <Drawer class="sm:block hidden" />
+    <Live2d />
+    <APlayer />
   </div>
 </template>
 

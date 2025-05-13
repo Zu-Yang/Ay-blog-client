@@ -6,6 +6,10 @@
   scrollbar-width: var(--scrollbar-width);
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 img,
 video {
   max-width: none;
@@ -47,6 +51,7 @@ body > canvas {
 }
 
 .bg-grid {
+  min-height: 100vh;
   background: linear-gradient(to right, var(--bg-grid-color) 1px, transparent 1px), linear-gradient(to bottom, var(--bg-grid-color) 1px, transparent 1px);
   background-size: var(--bg-grid-size);
   background-repeat: repeat;

@@ -1,7 +1,7 @@
 <template>
   <div class="swiper-nested">
     <Swiper
-      class="swiper swiper-h"
+      class="swiper swiper-h h-48"
       @swiper="onSwiper"
       @slideChange="onSlideChange"
       :loop="option.loop"
@@ -9,7 +9,7 @@
       :effect="option.effect"
       :modules="[Scrollbar]"
       :autoplay="option.autoplay"
-      :slides-per-view="option.slidesPerView"
+      :slides-per-view="slidesPerView"
       :space-between="option.spaceBetween"
       :resistanceRatio="option.resistanceRatio"
       :watch-overflow="option.watchOverflow"
@@ -21,7 +21,7 @@
       }"
     >
       <SwiperSlide
-        class="rounded-2xl overflow-hidden w-50! h-50!"
+        class="rounded-2xl shadow-xl overflow-hidden"
         v-for="(item, idx) in items"
         :key="item.article_id"
       >
@@ -136,32 +136,35 @@ const slideNext = () => {
   mySwiper.value.slideNext();
 };
 
-const onSwiper = (swiper) => {
+const onSwiper = swiper => {
   mySwiper.value = swiper;
 };
 
 const onSlideChange = () => {};
 
-// watch(
-//   () => screenWidth.value,
-//   (newVal) => {
-//     if (newVal <= appConfig.bp.sm) {
-//       return (slidesPerView.value = 1);
-//     }
-//     if (newVal <= appConfig.bp.md) {
-//       return (slidesPerView.value = 2);
-//     }
-//     if (newVal <= appConfig.bp.lg) {
-//       return (slidesPerView.value = 3);
-//     }
-//     // if (1024 < newVal) {
-//     //   return (slidesPerView.value = 3);
-//     // }
-//   },
-//   {
-//     immediate: true,
-//   }
-// );
+watch(
+  () => screenWidth.value,
+  newVal => {
+    // 根据屏幕宽度设置显示的幻灯片数量
+    const breakpoints = [
+      { width: appConfig.bp.sm, slides: 1.1 },
+      { width: appConfig.bp.lg, slides: 2.1 },
+      { width: appConfig.bp.xl, slides: 3.1 },
+    ];
+
+    // 找到第一个符合条件的断点
+    const matchedBreakpoint = breakpoints.find(bp => newVal <= bp.width);
+
+    // 设置显示的幻灯片数量
+    slidesPerView.value = matchedBreakpoint ? matchedBreakpoint.slides : 3.1;
+
+    // 重新加载Swiper
+    // mySwiper.value && mySwiper.value.update();
+  },
+  {
+    immediate: true,
+  }
+);
 
 onUnmounted(() => {
   mySwiper.value.destroy();

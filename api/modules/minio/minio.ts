@@ -3,6 +3,12 @@ import { File, Blob } from "node:buffer";
 import type { bucket } from "../../type-interface";
 
 export default {
+  getAudio: (query: bucket) => {
+    return fetch("/api/minio/getAudio", {
+      method: "GET",
+      query: query,
+    });
+  },
   getRandomBanner: (query: bucket) => {
     return fetch("/api/minio/getRandomBanner", {
       method: "GET",

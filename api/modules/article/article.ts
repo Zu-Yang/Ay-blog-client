@@ -20,6 +20,11 @@ export default {
       body: params,
     });
   },
+  getTopArticles: () => {
+    return fetch(`/api/article/toplist`, {
+      method: "GET",
+    });
+  },
   getArticles: (params: pagination) => {
     return fetch(
       `/api/article/list?page=${params.page}&orderBy=${params.orderBy}&limit=${params.limit}`,

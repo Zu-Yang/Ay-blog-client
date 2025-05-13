@@ -13,21 +13,22 @@ export const useLocal = defineStore("local", () => {
       if (str) {
         const { timeStamp } = JSON.parse(str);
         shouldFetch = nowTimeStamp > timeStamp + oneDay;
+        return JSON.parse(str);
       }
 
-      if (shouldFetch) {
-        const res = await $http.local.getIpInfo();
+      // if (shouldFetch) {
+      //   const res = await $http.local.getIpInfo();
 
-        if (res.code == 200) {
-          const { country, short_name, province, city, area, isp, net, ip } = res.data;
-          const data = { country, short_name, province, city, area, isp, net, ip, timeStamp: nowTimeStamp };
-          localStorage.setItem('IP_INFO', JSON.stringify(data));
+      //   if (res.code == 200) {
+      //     const { country, short_name, province, city, area, isp, net, ip } = res.data;
+      //     const data = { country, short_name, province, city, area, isp, net, ip, timeStamp: nowTimeStamp };
+      //     localStorage.setItem('IP_INFO', JSON.stringify(data));
 
-          return res.data;
-        }
-      } else {
-        return JSON.parse(str as string);
-      }
+      //     return res.data;
+      //   }
+      // } else {
+      //   return JSON.parse(str as string);
+      // }
     } catch (error) {
       console.error('Error fetching IP information:', error);
       throw error;

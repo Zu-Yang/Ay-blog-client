@@ -12,5 +12,6 @@ NProgress.configure({
 });
 
 export default defineNuxtPlugin((nuxtApp) => {
+  // 全局注入
   nuxtApp.provide('nprogress', NProgress)
 }) 

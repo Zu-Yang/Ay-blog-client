@@ -12,8 +12,7 @@
       <NuxtLoadingIndicator />
       <NuxtPage keepalive />
     </NuxtLayout>
-    <Live2d />
-    <n-back-top />
+    <!-- <n-back-top /> -->
   </n-config-provider>
 </template>
 <script setup lang="ts">

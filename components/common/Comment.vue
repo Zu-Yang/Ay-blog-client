@@ -1,472 +1,486 @@
 <template>
-  <div class="comment-wrap">
-    <n-drawer
-      v-model:show="showDrawer"
-      @update:show="(newShow:boolean) => $emit('change', newShow)"
-      id="comment-container"
-      display-directive="show"
-      :placement="placement"
-      :width="480"
-      :trap-focus="true"
-      :block-scroll="true"
-      :close-on-esc="true"
-      :auto-focus="true"
-      style="background-color: transparent; min-height: 74vh"
-      :content-style="{
-        backgroundColor: 'var(--comment-bg-color)',
-        backdropFilter: 'blur(16px)',
+  <n-drawer
+    v-model:show="showDrawer"
+    @update:show="(newShow:boolean) => $emit('change', newShow)"
+    id="comment-container"
+    display-directive="show"
+    :placement="placement"
+    :width="480"
+    :trap-focus="true"
+    :block-scroll="true"
+    :close-on-esc="true"
+    :auto-focus="true"
+    style="background-color: transparent; min-height: 74vh"
+    :content-style="{
+      backgroundColor: 'var(--comment-bg-color)',
+      backdropFilter: 'blur(16px)',
+      overflow: 'hidden',
+      borderTopLeftRadius: '0',
+      borderTopRightRadius: '0',
+    }"
+  >
+    <n-drawer-content
+      closable
+      :body-style="{}"
+      :body-content-style="{
+        height: '100%',
         overflow: 'hidden',
-        borderTopLeftRadius: '0',
-        borderTopRightRadius: '0',
+        padding: '16px 0px 0px 0px',
+      }"
+      :header-style="{
+        borderBottom: 'none',
+      }"
+      :footer-style="{
+        position: 'relative',
+        borderTop: 'none',
+        padding: '16px',
       }"
     >
-      <n-drawer-content
-        closable
-        :body-style="{}"
-        :body-content-style="{
-          height: '100%',
-          overflow: 'hidden',
-          padding: '16px 0px 0px 0px',
-        }"
-        :header-style="{
-          borderBottom: 'none',
-        }"
-        :footer-style="{
-          position: 'relative',
-          borderTop: 'none',
-          padding: '16px',
-        }"
-      >
-        <template #header>
-          <div class="text-center">{{ totalNum }}条评论</div>
-        </template>
-        <template #footer>
-          <!-- emoji -->
-          <div
-            :class="[
-              ' absolute left-4 right-4 -top-[184px] h-[200px] w-auto rounded-[24px] rounded-b-none p-4 pt-2 transition-all bg-[var(--comment-popup-bg-color)] shadow-[0_0_20px_0_var(--comment-textarea-box-shadow)]',
-              { 'opacity-0 invisible -top-[150px]': !showEmoji },
-            ]"
+      <template #header>
+        <div class="text-center">{{ totalNum }}条评论</div>
+      </template>
+      <template #footer>
+        <!-- emoji -->
+        <div
+          :class="[
+            ' absolute left-4 right-4 -top-[184px] h-[200px] w-auto rounded-[24px] rounded-b-none p-4 pt-2 transition-all bg-[var(--comment-popup-bg-color)] shadow-[0_0_20px_0_var(--comment-textarea-box-shadow)]',
+            { 'opacity-0 invisible -top-[150px]': !showEmoji },
+          ]"
+        >
+          <n-tabs
+            class="w-full h-full"
+            type="line"
+            trigger="hover"
+            :default-value="0"
+            :pane-style="{
+              overflow: 'auto',
+            }"
           >
-            <n-tabs
-              class="w-full h-full"
-              type="line"
-              trigger="hover"
-              :default-value="0"
-              :pane-style="{
-                overflow: 'auto',
-              }"
+            <n-tab-pane
+              v-for="(category, index) in emojiList"
+              :name="index"
+              :tab="category.categoryName"
+              :key="index"
             >
-              <n-tab-pane
-                v-for="(category, index) in emojiList"
-                :name="index"
-                :tab="category.categoryName"
-                :key="index"
+              <div
+                class="grid grid-cols-10 gap-y-[5px] justify-between items-center justify-items-center overflow-auto h-full scrollbar-thin"
               >
                 <div
-                  class="grid grid-cols-10 gap-y-[5px] justify-between items-center justify-items-center overflow-auto h-full scrollbar-thin"
+                  class="transition-all border border-transparent hover:border-[var(--theme-color)]"
+                  v-for="(item, index) in category.emojiList"
+                  :key="index"
+                  @click="insertEmoji($event)"
                 >
-                  <div
-                    class="transition-all border border-transparent hover:border-[var(--theme-color)]"
-                    v-for="(item, index) in category.emojiList"
-                    :key="index"
-                    @click="insertEmoji($event)"
-                  >
-                    <i
-                      class="inline-block not-italic text-[22px] cursor-pointer transition-transform select-none active:scale-95"
-                      :title="item.name"
-                      v-html="item.htmlCode[0]"
-                      :data-htmlCode="item.htmlCode"
-                    ></i>
-                  </div>
-                </div>
-              </n-tab-pane>
-            </n-tabs>
-          </div>
-          <!-- 表单 -->
-          <div
-            :class="[
-              'absolute -top-[184px] left-4 right-4 h-[200px] rounded-[24px] rounded-b-none px-4 pt-4 transition-all bg-[var(--comment-popup-bg-color)] shadow-[0_0_20px_0_var(--comment-textarea-box-shadow)]',
-              { 'opacity-0 invisible -top-[150px]': !showForm },
-            ]"
-          >
-            <n-form
-              size="small"
-              ref="formRef1"
-              :model="paramsForm"
-              :rules="formRules"
-              :show-feedback="true"
-              :show-label="false"
-            >
-              <n-form-item path="user.name">
-                <n-input
-                  v-model:value="paramsForm.user.name"
-                  :minlength="2"
-                  :maxlength="12"
-                  placeholder="昵称*"
-                />
-              </n-form-item>
-              <n-form-item path="user.email">
-                <n-input v-model:value="paramsForm.user.email" placeholder="邮箱*" />
-              </n-form-item>
-              <n-form-item path="user.jumpUrl">
-                <n-input
-                  v-model:value="paramsForm.user.jumpUrl"
-                  placeholder="网址(非必填)"
-                />
-              </n-form-item>
-              <div class="flex justify-end">
-                <button
-                  class="rounded-full text-sm px-4 py-0 bg-[var(--theme-color)] transition-transform hover:scale-105 active:scale-95"
-                  @click="setLocal"
-                >
-                  保存
-                </button>
-              </div>
-            </n-form>
-          </div>
-          <!-- 输入框 -->
-          <div
-            :class="[
-              'w-full bg-[var(--comment-textarea-bg-color)] rounded-[24px] p-4 z-[1001] transition-all shadow-[0_0_20px_0_var(--comment-textarea-box-shadow)]',
-              {
-                'rounded-t-none': showEmoji || showForm,
-              },
-            ]"
-            id="edit-container"
-          >
-            <textarea
-              v-model="paramsForm.comment"
-              id="editable"
-              ref="textareaRef"
-              name="comment"
-              rows="2"
-              maxlength="800"
-              :placeholder="placeholder"
-              @input="changeTextarea($event)"
-              class="w-full bg-transparent border-none text-[var(--n-text-color)] resize-none caret-[var(--theme-color)] overflow-hidden placeholder:text-[var(--color1)] focus:outline-none focus:overflow-auto"
-            />
-            <div class="mt-3 flex justify-between items-center">
-              <div class="flex">
-                <button
-                  :class="[
-                    'bg-transparent border-none rounded-full cursor-pointer transition-transform  hover:scale-105 active:scale-95',
-                    { 'text-[var(--theme-color)]': showEmoji },
-                  ]"
-                  type="button"
-                  @click="toggleEmoji"
-                >
-                  <SvgIcon name="emoji" size="24"></SvgIcon>
-                </button>
-                <button
-                  :class="[
-                    'bg-transparent border-none rounded-full cursor-pointer transition-transform ml-[5px] hover:scale-105 active:scale-95',
-                    { 'text-[var(--theme-color)]': showForm },
-                  ]"
-                  type="button"
-                  @click="toggleForm"
-                >
-                  <SvgIcon name="set" size="24"></SvgIcon>
-                </button>
-              </div>
-              <div class="flex">
-                <button
-                  :class="[
-                    'bg-transparent border-none rounded-full transition-transform hover:scale-105 active:scale-95',
-                    {
-                      'opacity-50 select-none cursor-not-allowed': disabledClear,
-                      'cursor-pointer': !disabledClear,
-                    },
-                  ]"
-                  :disabled="disabledClear"
-                  type="button"
-                  @click="clearHandle"
-                >
-                  <SvgIcon name="delete" size="24"></SvgIcon>
-                </button>
-                <button
-                  :class="[
-                    'bg-transparent border-none rounded-full transition-transform ml-[5px] hover:scale-105 active:scale-95',
-                    {
-                      'opacity-50 select-none cursor-not-allowed': disabledSend,
-                      'cursor-pointer': !disabledSend,
-                    },
-                  ]"
-                  :disabled="disabledSend"
-                  type="button"
-                  @click="handleComment"
-                >
-                  <SvgIcon name="send" size="24"></SvgIcon>
-                </button>
-              </div>
-            </div>
-          </div>
-        </template>
-        <div class="h-full overflow-auto" id="drawer-content">
-          <div
-            v-if="commentList.length"
-            ref="scrollContainer"
-            class="px-4"
-            @scroll="handleScroll"
-            v-auto-animate="{ duration: 300 }"
-          >
-            <div v-for="(item, index) in commentList" :key="item.comment_id" class="mb-5">
-              <!-- 评论项 -->
-              <div class="flex">
-                <!-- 头像 -->
-                <div class="mr-3 flex-shrink-0">
-                  <RandomAvatar :size="26" :token="item.nick_name" />
-                </div>
-
-                <!-- 评论内容 -->
-                <div class="flex-1 min-w-0">
-                  <!-- 用户信息 -->
-                  <div class="flex items-center">
-                    <a
-                      :class="[
-                        'font-bold text-sm hover:text-[var(--theme-color)] hover:underline mb-2',
-                        { 'text-[var(--theme-color)]': localIP == item.user_ip },
-                      ]"
-                      :href="item.jump_url"
-                      target="_blank"
-                    >
-                      {{ item.visitor_info.nick_name || item.nick_name }}
-                    </a>
-                  </div>
-
-                  <!-- 时间和地点 -->
-                  <div class="text-xs text-[var(--color2)] mb-2">
-                    <n-time
-                      :time="Date.now()"
-                      :to="new Date(item.created_at)"
-                      type="relative"
-                    />
-                    · {{ item.visitor_info.province }}
-                  </div>
-
-                  <!-- 评论内容 -->
-                  <div class="html-container relative">
-                    <div
-                      class="v-html-content text-sm text-[var(--n-text-color)] whitespace-pre-wrap tracking-wider"
-                      :class="{ truncated: !item.isExpanded && item.showExpand }"
-                      v-html="
-                        useDecodeEmoji(
-                          item.decodedContent,
-                          limitContentNum,
-                          item.isExpanded
-                        )
-                      "
-                    ></div>
-                    <span
-                      v-if="item.showExpand"
-                      class="inline-block text-xs text-[var(--color2)] cursor-pointer mt-3 hover:text-[var(--theme-color)] hover:underline"
-                      @click="
-                        ($event) => {
-                          item.isExpanded = !item.isExpanded;
-                          toggleReply($event, item.isExpanded);
-                        }
-                      "
-                    >
-                      {{ item.isExpanded ? "收起" : "展开" }}
-                      <span class="inline-flex items-center">
-                        <SvgIcon
-                          v-if="!item.isExpanded"
-                          name="arrow-down"
-                          size="12"
-                        ></SvgIcon>
-                        <SvgIcon v-else name="arrow-up" size="12"></SvgIcon>
-                      </span>
-                    </span>
-                  </div>
-
-                  <div class="flex">
-                    <!-- 回复按钮 -->
-                    <div class="mt-2 mr-2">
-                      <button
-                        class="text-xs text-[var(--color2)] bg-transparent border-none flex items-center cursor-pointer hover:text-[var(--theme-color)]"
-                        @click="
-                          replyLavel == 1 && replyIndex == index
-                            ? clearHandle()
-                            : handleReply(item, 1, index)
-                        "
-                      >
-                        <span class="mr-1">
-                          {{
-                            replyLavel == 1 && replyIndex == index ? "取消回复" : "回复"
-                          }}
-                        </span>
-                        <SvgIcon name="reply" size="12"></SvgIcon>
-                      </button>
-                    </div>
-
-                    <!-- 展开/收起回复按钮 -->
-                    <div v-if="item.replys && item.showOpenReply" class="mt-2">
-                      <button
-                        class="text-xs text-[var(--color2)] bg-transparent border-none flex items-center cursor-pointer hover:text-[var(--theme-color)]"
-                        @click="item.isOpenReply = !item.isOpenReply"
-                      >
-                        <span class="mr-1">
-                          {{
-                            item.isOpenReply
-                              ? "收起" + item.replys.length + "条回复"
-                              : "展开" + item.replys.length + "条回复"
-                          }}
-                        </span>
-                        <SvgIcon
-                          v-show="!item.isOpenReply"
-                          name="arrow-down"
-                          size="12"
-                        ></SvgIcon>
-                        <SvgIcon
-                          v-show="item.isOpenReply"
-                          name="arrow-up"
-                          size="12"
-                        ></SvgIcon>
-                      </button>
-                    </div>
-                  </div>
-
-                  <!-- 回复列表 -->
-                  <div
-                    v-if="item.isOpenReply"
-                    class="mt-3 mb-3"
-                    v-auto-animate="{ duration: 300 }"
-                  >
-                    <div
-                      v-for="(reply, index) in item.replys"
-                      :key="reply.comment_id"
-                      class="flex mt-4"
-                    >
-                      <!-- 回复头像 -->
-                      <div class="mr-3 flex-shrink-0">
-                        <RandomAvatar :size="26" :token="item.nick_name" />
-                      </div>
-
-                      <!-- 回复内容 -->
-                      <div class="flex-1 min-w-0">
-                        <!-- 回复者信息 -->
-                        <div class="flex items-center">
-                          <div class="flex items-center">
-                            <a
-                              :class="[
-                                'font-bold text-sm hover:text-[var(--theme-color)] hover:underline',
-                                { 'text-[var(--theme-color)]': localIP == item.user_ip },
-                              ]"
-                              :href="reply.jump_url"
-                              target="_blank"
-                            >
-                              {{ reply.visitor_info.nick_name || reply.nick_name }}
-                            </a>
-                            <SvgIcon
-                              class="mx-1"
-                              name="arrow-drop-right-fill"
-                              size="10"
-                              color="var(--color1)"
-                            ></SvgIcon>
-                            <a
-                              :class="[
-                                'font-bold text-sm hover:text-[var(--theme-color)] hover:underline',
-                                { 'text-[var(--theme-color)]': localIP == item.user_ip },
-                              ]"
-                              :href="reply.reply_info.user_jump_url"
-                              target="_blank"
-                            >
-                              {{ reply.reply_info.nick_name }}
-                            </a>
-                          </div>
-                        </div>
-
-                        <!-- 回复时间和地点 -->
-                        <div class="text-xs text-[var(--color2)] mb-2">
-                          <n-time
-                            :time="Date.now()"
-                            :to="new Date(reply.created_at)"
-                            type="relative"
-                          />
-                          · {{ reply.visitor_info.province }}
-                        </div>
-
-                        <!-- 回复内容 -->
-                        <div class="html-container relative">
-                          <div
-                            class="v-html-content text-sm text-[var(--n-text-color)] whitespace-pre-wrap tracking-wider"
-                            :class="{ truncated: !reply.isExpanded }"
-                            v-html="
-                              useDecodeEmoji(
-                                reply.decodedContent,
-                                limitContentNum,
-                                reply.isExpanded
-                              )
-                            "
-                          ></div>
-                          <span
-                            v-if="reply.showExpand"
-                            class="inline-block text-xs text-[var(--color2)] cursor-pointer mt-3 hover:text-[var(--theme-color)] hover:underline"
-                            @click="
-                              ($event) => {
-                                reply.isExpanded = !reply.isExpanded;
-                                toggleReply($event, reply.isExpanded);
-                              }
-                            "
-                          >
-                            {{ reply.isExpanded ? "收起" : "展开" }}
-                            <span class="inline-flex items-center">
-                              <SvgIcon
-                                v-if="!reply.isExpanded"
-                                name="arrow-down"
-                                size="12"
-                              ></SvgIcon>
-                              <SvgIcon v-else name="arrow-up" size="12"></SvgIcon>
-                            </span>
-                          </span>
-                        </div>
-                        <!-- 回复按钮 -->
-                        <div class="mt-2">
-                          <button
-                            class="text-xs text-[var(--color2)] bg-transparent border-none flex items-center cursor-pointer hover:text-[var(--theme-color)]"
-                            @click="
-                              replyLavel == 2 && replyIndex == index
-                                ? clearHandle()
-                                : handleReply(item, 2, index)
-                            "
-                          >
-                            <span class="mr-1">
-                              {{
-                                replyLavel == 2 && replyIndex == index
-                                  ? "取消回复"
-                                  : "回复"
-                              }}
-                            </span>
-                            <SvgIcon name="reply" size="12"></SvgIcon>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <i
+                    class="inline-block not-italic text-[22px] cursor-pointer transition-transform select-none active:scale-95"
+                    :title="item.name"
+                    v-html="item.htmlCode[0]"
+                    :data-htmlCode="item.htmlCode"
+                  ></i>
                 </div>
               </div>
+            </n-tab-pane>
+          </n-tabs>
+        </div>
+        <!-- 表单 -->
+        <div
+          :class="[
+            'absolute -top-[184px] left-4 right-4 h-[200px] rounded-[24px] rounded-b-none px-4 pt-4 transition-all bg-[var(--comment-popup-bg-color)] shadow-[0_0_20px_0_var(--comment-textarea-box-shadow)]',
+            { 'opacity-0 invisible -top-[150px]': !showForm },
+          ]"
+        >
+          <n-form
+            size="small"
+            ref="formRef1"
+            :model="paramsForm"
+            :rules="formRules"
+            :show-feedback="true"
+            :show-label="false"
+          >
+            <n-form-item path="user.name">
+              <n-input
+                v-model:value="paramsForm.user.name"
+                :minlength="2"
+                :maxlength="12"
+                placeholder="昵称*"
+              />
+            </n-form-item>
+            <n-form-item path="user.email">
+              <n-input
+                v-model:value="paramsForm.user.email"
+                placeholder="邮箱*"
+              />
+            </n-form-item>
+            <n-form-item path="user.jumpUrl">
+              <n-input
+                v-model:value="paramsForm.user.jumpUrl"
+                placeholder="网址(非必填)"
+              />
+            </n-form-item>
+            <div class="flex justify-end">
+              <button
+                class="rounded-full text-sm px-4 py-0 bg-[var(--theme-color)] transition-transform hover:scale-105 active:scale-95"
+                @click="setLocal"
+              >
+                保存
+              </button>
             </div>
-            <div v-if="loading" class="text-center my-5 text-[var(--color1)]">
-              加载中...
+          </n-form>
+        </div>
+        <!-- 输入框 -->
+        <div
+          :class="[
+            'w-full bg-[var(--comment-textarea-bg-color)] rounded-[24px] p-4 z-[1001] transition-all shadow-[0_0_20px_0_var(--comment-textarea-box-shadow)]',
+            {
+              'rounded-t-none': showEmoji || showForm,
+            },
+          ]"
+          id="edit-container"
+        >
+          <textarea
+            v-model="paramsForm.comment"
+            ref="textareaRef"
+            name="comment"
+            rows="2"
+            maxlength="800"
+            :placeholder="placeholder"
+            @input="changeTextarea($event)"
+            class="w-full bg-transparent border-none text-[var(--n-text-color)] resize-none caret-[var(--theme-color)] overflow-hidden placeholder:text-[var(--color1)] focus:outline-none focus:overflow-auto"
+          />
+          <div class="mt-3 flex justify-between items-center">
+            <div class="flex">
+              <button
+                :class="[
+                  'bg-transparent border-none rounded-full cursor-pointer transition-transform  hover:scale-105 active:scale-95',
+                  { 'text-[var(--theme-color)]': showEmoji },
+                ]"
+                type="button"
+                @click="toggleEmoji"
+              >
+                <SvgIcon name="emoji" size="24"></SvgIcon>
+              </button>
+              <button
+                :class="[
+                  'bg-transparent border-none rounded-full cursor-pointer transition-transform ml-[5px] hover:scale-105 active:scale-95',
+                  { 'text-[var(--theme-color)]': showForm },
+                ]"
+                type="button"
+                @click="toggleForm"
+              >
+                <SvgIcon name="set" size="24"></SvgIcon>
+              </button>
             </div>
-            <div v-if="noMore" class="text-center my-5 text-[var(--color1)]">
-              没有更多评论
-            </div>
-          </div>
-          <div v-else class="relative h-full min-h-[200px]">
-            <div
-              class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center"
-            >
-              <div class="w-[100px] h-[100px] mx-auto">
-                <SvgIcon name="empty" size="100" />
-              </div>
-              <div class="mt-3 text-[var(--color1)]">快来发表你的评论吧~</div>
+            <div class="flex">
+              <button
+                :class="[
+                  'bg-transparent border-none rounded-full transition-transform hover:scale-105 active:scale-95',
+                  {
+                    'opacity-50 select-none cursor-not-allowed': disabledClear,
+                    'cursor-pointer': !disabledClear,
+                  },
+                ]"
+                :disabled="disabledClear"
+                type="button"
+                @click="clearHandle"
+              >
+                <SvgIcon name="delete" size="24"></SvgIcon>
+              </button>
+              <button
+                :class="[
+                  'bg-transparent border-none rounded-full transition-transform ml-[5px] hover:scale-105 active:scale-95',
+                  {
+                    'opacity-50 select-none cursor-not-allowed': disabledSend,
+                    'cursor-pointer': !disabledSend,
+                  },
+                ]"
+                :disabled="disabledSend"
+                type="button"
+                @click="handleComment"
+              >
+                <SvgIcon name="send" size="24"></SvgIcon>
+              </button>
             </div>
           </div>
         </div>
-      </n-drawer-content>
-    </n-drawer>
-  </div>
+      </template>
+      <div class="h-full overflow-auto" id="drawer-content">
+        <div
+          v-if="commentList.length"
+          ref="scrollContainer"
+          class="px-4"
+          @scroll="handleScroll"
+          v-auto-animate="{ duration: 300 }"
+        >
+          <div
+            v-for="(item, index) in commentList"
+            :key="item.comment_id"
+            class="mb-5"
+          >
+            <!-- 评论项 -->
+            <div class="flex">
+              <!-- 头像 -->
+              <div class="mr-3 flex-shrink-0">
+                <RandomAvatar :size="26" :token="item.nick_name" />
+              </div>
+
+              <!-- 评论内容 -->
+              <div class="flex-1 min-w-0">
+                <!-- 用户信息 -->
+                <div class="flex items-center">
+                  <a
+                    :class="[
+                      'font-bold text-sm hover:text-[var(--theme-color)] hover:underline mb-2',
+                      { 'text-[var(--theme-color)]': localIP == item.user_ip },
+                    ]"
+                    :href="item.jump_url"
+                    target="_blank"
+                  >
+                    {{ item.visitor_info.nick_name || item.nick_name }}
+                  </a>
+                </div>
+
+                <!-- 时间和地点 -->
+                <div class="text-xs text-[var(--color2)] mb-2">
+                  <n-time
+                    :time="Date.now()"
+                    :to="new Date(item.created_at)"
+                    type="relative"
+                  />
+                  · {{ item.visitor_info.province }}
+                </div>
+
+                <!-- 评论内容 -->
+                <div class="html-container relative">
+                  <div
+                    class="v-html-content text-sm text-[var(--n-text-color)] whitespace-pre-wrap tracking-wider"
+                    :class="{ truncated: !item.isExpanded && item.showExpand }"
+                    v-html="
+                      useDecodeEmoji(
+                        item.decodedContent,
+                        limitContentNum,
+                        item.isExpanded
+                      )
+                    "
+                  ></div>
+                  <span
+                    v-if="item.showExpand"
+                    class="inline-block text-xs text-[var(--color2)] cursor-pointer mt-3 hover:text-[var(--theme-color)] hover:underline"
+                    @click="
+                      ($event) => {
+                        item.isExpanded = !item.isExpanded;
+                        toggleReply($event, item.isExpanded);
+                      }
+                    "
+                  >
+                    {{ item.isExpanded ? "收起" : "展开" }}
+                    <span class="inline-flex items-center">
+                      <SvgIcon
+                        v-if="!item.isExpanded"
+                        name="arrow-down"
+                        size="12"
+                      ></SvgIcon>
+                      <SvgIcon v-else name="arrow-up" size="12"></SvgIcon>
+                    </span>
+                  </span>
+                </div>
+
+                <div class="flex">
+                  <!-- 回复按钮 -->
+                  <div class="mt-2 mr-2">
+                    <button
+                      class="text-xs text-[var(--color2)] bg-transparent border-none flex items-center cursor-pointer hover:text-[var(--theme-color)]"
+                      @click="
+                        replyLavel == 1 && replyIndex == index
+                          ? clearHandle()
+                          : handleReply(item, 1, index)
+                      "
+                    >
+                      <span class="mr-1">
+                        {{
+                          replyLavel == 1 && replyIndex == index
+                            ? "取消回复"
+                            : "回复"
+                        }}
+                      </span>
+                      <SvgIcon name="reply" size="12"></SvgIcon>
+                    </button>
+                  </div>
+
+                  <!-- 展开/收起回复按钮 -->
+                  <div v-if="item.replys && item.showOpenReply" class="mt-2">
+                    <button
+                      class="text-xs text-[var(--color2)] bg-transparent border-none flex items-center cursor-pointer hover:text-[var(--theme-color)]"
+                      @click="item.isOpenReply = !item.isOpenReply"
+                    >
+                      <span class="mr-1">
+                        {{
+                          item.isOpenReply
+                            ? "收起" + item.replys.length + "条回复"
+                            : "展开" + item.replys.length + "条回复"
+                        }}
+                      </span>
+                      <SvgIcon
+                        v-show="!item.isOpenReply"
+                        name="arrow-down"
+                        size="12"
+                      ></SvgIcon>
+                      <SvgIcon
+                        v-show="item.isOpenReply"
+                        name="arrow-up"
+                        size="12"
+                      ></SvgIcon>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- 回复列表 -->
+                <div
+                  v-if="item.isOpenReply"
+                  class="mt-3 mb-3"
+                  v-auto-animate="{ duration: 300 }"
+                >
+                  <div
+                    v-for="(reply, index) in item.replys"
+                    :key="reply.comment_id"
+                    class="flex mt-4"
+                  >
+                    <!-- 回复头像 -->
+                    <div class="mr-3 flex-shrink-0">
+                      <RandomAvatar :size="26" :token="item.nick_name" />
+                    </div>
+
+                    <!-- 回复内容 -->
+                    <div class="flex-1 min-w-0">
+                      <!-- 回复者信息 -->
+                      <div class="flex items-center">
+                        <div class="flex items-center">
+                          <a
+                            :class="[
+                              'font-bold text-sm hover:text-[var(--theme-color)] hover:underline',
+                              {
+                                'text-[var(--theme-color)]':
+                                  localIP == item.user_ip,
+                              },
+                            ]"
+                            :href="reply.jump_url"
+                            target="_blank"
+                          >
+                            {{
+                              reply.visitor_info.nick_name || reply.nick_name
+                            }}
+                          </a>
+                          <SvgIcon
+                            class="mx-1"
+                            name="arrow-drop-right-fill"
+                            size="10"
+                            color="var(--color1)"
+                          ></SvgIcon>
+                          <a
+                            :class="[
+                              'font-bold text-sm hover:text-[var(--theme-color)] hover:underline',
+                              {
+                                'text-[var(--theme-color)]':
+                                  localIP == item.user_ip,
+                              },
+                            ]"
+                            :href="reply.reply_info.user_jump_url"
+                            target="_blank"
+                          >
+                            {{ reply.reply_info.nick_name }}
+                          </a>
+                        </div>
+                      </div>
+
+                      <!-- 回复时间和地点 -->
+                      <div class="text-xs text-[var(--color2)] mb-2">
+                        <n-time
+                          :time="Date.now()"
+                          :to="new Date(reply.created_at)"
+                          type="relative"
+                        />
+                        · {{ reply.visitor_info.province }}
+                      </div>
+
+                      <!-- 回复内容 -->
+                      <div class="html-container relative">
+                        <div
+                          class="v-html-content text-sm text-[var(--n-text-color)] whitespace-pre-wrap tracking-wider"
+                          :class="{ truncated: !reply.isExpanded }"
+                          v-html="
+                            useDecodeEmoji(
+                              reply.decodedContent,
+                              limitContentNum,
+                              reply.isExpanded
+                            )
+                          "
+                        ></div>
+                        <span
+                          v-if="reply.showExpand"
+                          class="inline-block text-xs text-[var(--color2)] cursor-pointer mt-3 hover:text-[var(--theme-color)] hover:underline"
+                          @click="
+                            ($event) => {
+                              reply.isExpanded = !reply.isExpanded;
+                              toggleReply($event, reply.isExpanded);
+                            }
+                          "
+                        >
+                          {{ reply.isExpanded ? "收起" : "展开" }}
+                          <span class="inline-flex items-center">
+                            <SvgIcon
+                              v-if="!reply.isExpanded"
+                              name="arrow-down"
+                              size="12"
+                            ></SvgIcon>
+                            <SvgIcon v-else name="arrow-up" size="12"></SvgIcon>
+                          </span>
+                        </span>
+                      </div>
+                      <!-- 回复按钮 -->
+                      <div class="mt-2">
+                        <button
+                          class="text-xs text-[var(--color2)] bg-transparent border-none flex items-center cursor-pointer hover:text-[var(--theme-color)]"
+                          @click="
+                            replyLavel == 2 && replyIndex == index
+                              ? clearHandle()
+                              : handleReply(item, 2, index)
+                          "
+                        >
+                          <span class="mr-1">
+                            {{
+                              replyLavel == 2 && replyIndex == index
+                                ? "取消回复"
+                                : "回复"
+                            }}
+                          </span>
+                          <SvgIcon name="reply" size="12"></SvgIcon>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div v-if="loading" class="text-center my-5 text-[var(--color1)]">
+            加载中...
+          </div>
+          <div v-if="noMore" class="text-center my-5 text-[var(--color1)]">
+            没有更多评论
+          </div>
+        </div>
+        <div v-else class="relative h-full min-h-[200px]">
+          <div
+            class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center"
+          >
+            <div class="w-[100px] h-[100px] mx-auto">
+              <SvgIcon name="empty" size="100" />
+            </div>
+            <div class="mt-3 text-[var(--color1)]">快来发表你的评论吧~</div>
+          </div>
+        </div>
+      </div>
+    </n-drawer-content>
+  </n-drawer>
 </template>
 
 <script setup lang="ts">
@@ -548,7 +562,9 @@ const formRules = ref({
         if (!value) {
           return new Error("请输入昵称");
         } else if (!nicknameRegex.test(value)) {
-          return new Error("只允许汉字、字母、数字和下划线，长度2-12个字符组成");
+          return new Error(
+            "只允许汉字、字母、数字和下划线，长度2-12个字符组成"
+          );
         }
         return true;
       },
@@ -561,7 +577,9 @@ const formRules = ref({
         if (!value) {
           return new Error("请输入邮箱");
         } else if (!emaileRegex.test(value)) {
-          return new Error("只允许英文字母、数字、下划线、英文句号、以及中划线组成");
+          return new Error(
+            "只允许英文字母、数字、下划线、英文句号、以及中划线组成"
+          );
         }
         return true;
       },
@@ -570,7 +588,8 @@ const formRules = ref({
       required: false,
       trigger: ["input", "blur"],
       validator(rule: FormItemRule, value: string) {
-        const urlRegex = /^(https?:\/\/)(([\da-z.-]+\.([a-z.]{2,6}))|((\d{1,3}\.){3}\d{1,3})|localhost)(:[0-9]{1,5})?([/\w .-]*)*\/?(\?[a-zA-Z0-9=&_.-]*)?(#[\w]*)?$/;
+        const urlRegex =
+          /^(https?:\/\/)(([\da-z.-]+\.([a-z.]{2,6}))|((\d{1,3}\.){3}\d{1,3})|localhost)(:[0-9]{1,5})?([/\w .-]*)*\/?(\?[a-zA-Z0-9=&_.-]*)?(#[\w]*)?$/;
         if (value && !urlRegex.test(value)) {
           return new Error("网址格式不正确，网址协议必填");
         }
@@ -655,7 +674,10 @@ const insertEmoji = ($event: Event) => {
 
 const setLocal = async () => {
   await handleValidate();
-  localStorage.setItem("COMMENT_USERINFO", JSON.stringify(paramsForm.value.user));
+  localStorage.setItem(
+    "COMMENT_USERINFO",
+    JSON.stringify(paramsForm.value.user)
+  );
   showForm.value = false;
 };
 
@@ -753,28 +775,31 @@ const handleComment = async () => {
       totalNum.value += 1;
       const processedData = dataMap([res.data]);
       if (replyIp.value && parentId.value) {
-        commentList.value.reduce((accValue: any, curValue: any, curIndex: number) => {
-          if (curValue.comment_id == parentId.value) {
-            // 展开回复列表
-            commentList.value[curIndex].isOpenReply = true;
-            switch (replyLavel.value) {
-              case 1:
-                // 在开头插入数据
-                commentList.value[curIndex].replys.unshift(...processedData);
-                break;
-              case 2:
-                // 在索引位置插入新元素（不删除元素）
-                commentList.value[curIndex].replys.splice(
-                  replyIndex.value + 1,
-                  0,
-                  ...processedData
-                );
-                break;
-              default:
-                break;
+        commentList.value.reduce(
+          (accValue: any, curValue: any, curIndex: number) => {
+            if (curValue.comment_id == parentId.value) {
+              // 展开回复列表
+              commentList.value[curIndex].isOpenReply = true;
+              switch (replyLavel.value) {
+                case 1:
+                  // 在开头插入数据
+                  commentList.value[curIndex].replys.unshift(...processedData);
+                  break;
+                case 2:
+                  // 在索引位置插入新元素（不删除元素）
+                  commentList.value[curIndex].replys.splice(
+                    replyIndex.value + 1,
+                    0,
+                    ...processedData
+                  );
+                  break;
+                default:
+                  break;
+              }
             }
-          }
-        }, []);
+          },
+          []
+        );
       } else {
         commentList.value.unshift(...processedData);
       }

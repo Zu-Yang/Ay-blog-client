@@ -22,7 +22,6 @@ definePageMeta({
       } catch (err) {
         console.error(err);
         $nprogress.done();
-        return abortNavigation(err as string);
       }
     },
   ],

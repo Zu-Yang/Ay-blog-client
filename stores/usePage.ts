@@ -16,6 +16,35 @@ export const usePage = defineStore("page", () => {
   const topType = ref<string>("top");
   const articleTopList = ref<any[]>([]);
 
+  const request = async (params: any) => {
+    try {
+      const { page, orderBy } = params;
+      const body = [
+        $http.article.getArticles({ page: page, orderBy: orderBy, limit: pagination.limit }),
+        $http.article.getTopArticles(),
+        $http.minio.getRandomBanner({ bucketName: "banner-images", prefix: "" }),
+      ]
+      const res = await Promise.all(body);
+
+      if (res[0].code == 200) {
+        Object.assign(pagination, {
+          curPage: Number(res[0].page),
+          count: Number(res[0].count),
+          total: Number(res[0].total),
+          dataList: res[0].data,
+        });
+      }
+      if (res[1].code == 200) {
+        articleTopList.value = res[1].data;
+      }
+      if (res[2].code == 200) {
+        fullBannerUrl.value = res[2].data.image;
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   const getArticleList = async (params: { page: number, orderBy: string }) => {
     try {
       const res = await $http.article.getArticles({
@@ -53,7 +82,10 @@ export const usePage = defineStore("page", () => {
     }
   }
   /* 默认全屏图 prefix:"", 半屏图 prefix:"halfBanner" */
-  const getBanner = async (data: { bucketName: string; prefix?: string }) => {
+  const getBanner = async (data: { bucketName: string; prefix?: string } = {
+    bucketName: "banner-images",
+    prefix: "",
+  }) => {
     try {
       if (!data.prefix && !fullBannerUrl.value) {
         const res = await $http.minio.getRandomBanner(data);
@@ -79,5 +111,6 @@ export const usePage = defineStore("page", () => {
     getArticleList,
     getBanner,
     getCategory,
+    request,
   };
 });

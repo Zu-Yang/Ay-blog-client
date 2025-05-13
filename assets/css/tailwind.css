@@ -1,4 +1,6 @@
 @tailwind utilities;
+/* tailwind夜间模式 https://tailwind.nodejs.cn/docs/dark-mode */
+@custom-variant dark (&:where(.dark, .dark *));
 @import "tailwindcss/preflight";
 @import "tailwindcss";
 @import "./tailwind-custom.min.css";

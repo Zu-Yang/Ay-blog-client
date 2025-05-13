@@ -1,6 +1,6 @@
 <template>
-  <div class="flex w-full lg:w-[calc(1024px-256px)]">
-    <div class="w-[calc(1024px-256px-150px)]">
+  <div class="flex w-full">
+    <div class="">
       <Toolbar
         class="sticky top-0 z-10 h-max overflow-hidden border-b-1 border-b-(--w-e-toolbar-border-color)"
         :editor="editorRef"
@@ -10,7 +10,7 @@
         class="h-[calc(100vh-120px)]! lg:h-[calc(100vh-160px)]! max-md:h-[calc(100vh-80px)]!"
         v-model="html"
         :defaultConfig="editorConfig"
-        @onCreated="(editor) => (editorRef = editor)"
+        @onCreated="editor => (editorRef = editor)"
         @onChange="editorChange"
       />
       <!-- 标题目录 -->
@@ -38,6 +38,12 @@ const $http = useHttp();
 const $config = useRuntimeConfig();
 
 const $emit = defineEmits(["getHtml", "getEditorImages"]);
+const props = defineProps({
+  clear: {
+    type: Boolean,
+    default: false,
+  },
+});
 
 const html = ref(
   "<h1>标题</h1><h2>标题A</h2><p>文本</p><p>文本</p><p>文本</p><h3>标题A1</h3><p>文本</p><p>文本</p><p>文本</p><h3>标题A2</h3><p>文本</p><p>文本</p><p>文本</p><h2>标题B</h2><p>文本</p><p>文本</p><p>文本</p><h3>标题B1</h3><p>文本</p><p>文本</p><p>文本</p><h3>标题B2</h3><p>文本</p><p>文本</p><p>文本</p>"
@@ -54,13 +60,22 @@ const editorConfig = {
   MENU_CONF: {},
 };
 
-const editorChange = async (editor) => {
+watch(
+  () => props.clear,
+  () => {
+    if (props.clear) {
+      editorRef.value.clear() || (html.value = "");
+    }
+  }
+);
+
+const editorChange = async editor => {
   if (!editor.isEmpty()) {
     await deleteImage();
     const htmlContent = editor.getHtml();
     const offsetArrTemp = [];
     const headers = editor.getElemsByTypePrefix("header");
-    headers.forEach((item) => {
+    headers.forEach(item => {
       const id = "#" + item.id;
       const elem = document.querySelector(id);
       const top = elem.offsetTop;
@@ -68,7 +83,7 @@ const editorChange = async (editor) => {
       offsetArr.value = offsetArrTemp;
     });
     const content_title = headers
-      .map((header) => {
+      .map(header => {
         const text = SlateNode.string(header);
         const { id, type } = header;
         return `<li id="${id}" type="${type}">${text}</li>`;
@@ -111,10 +126,10 @@ editorConfig.MENU_CONF["uploadImage"] = {
 
 // 删除图片
 const deleteImage = async () => {
-  const currentImage = editorRef.value.getElemsByType("image").map((item) => item.src); // 返回当前的url
-  const recordImage = historyImage.map((item) => item.url); // 返回记录的url
+  const currentImage = editorRef.value.getElemsByType("image").map(item => item.src); // 返回当前的url
+  const recordImage = historyImage.map(item => item.url); // 返回记录的url
   if (recordImage.length > currentImage.length) {
-    const urlArr = recordImage.filter((item) => !currentImage.includes(item)); //
+    const urlArr = recordImage.filter(item => !currentImage.includes(item)); //
     const nameArr = [];
     if (urlArr.length > 0) {
       // 获取url中的图片名称
@@ -129,7 +144,7 @@ const deleteImage = async () => {
     if (nameArr.length > 0) {
       await $http.minio
         .deleteImage(nameArr)
-        .then((res) => {
+        .then(res => {
           if (res.code == 200) {
             for (let index = 0; index < historyImage.length; index++) {
               const item = historyImage[index].url;
@@ -142,7 +157,7 @@ const deleteImage = async () => {
             $message.success(res.msg);
           }
         })
-        .catch((err) => {
+        .catch(err => {
           console.error(err);
         });
     }
@@ -171,7 +186,7 @@ const headerContainer = ref(null);
 onMounted(() => {
   // 标题 DOM 容器
   headerContainer.value = document.getElementById("anchor-container");
-  headerContainer.value.addEventListener("mousedown", (event) => {
+  headerContainer.value.addEventListener("mousedown", event => {
     if (event.target.tagName !== "LI") return;
     event.preventDefault();
     const id = event.target.id;
@@ -180,7 +195,7 @@ onMounted(() => {
   nextTick(() => {
     const wangEditor = document.querySelector(".w-e-scroll");
     wangEditor.style.scrollbarWidth = "thin"; // 滚动条宽度
-    wangEditor.addEventListener("scroll", (event) => {
+    wangEditor.addEventListener("scroll", event => {
       const scrollTop = event.target.scrollTop;
       offsetArr.value.forEach((item, index) => {
         if (scrollTop >= item.top - 1) {
@@ -200,6 +215,7 @@ onUnmounted(() => {
   if (editor == null) return;
   editor.destroy(); // 组件销毁时，也及时销毁编辑器
 });
+
 /* 暴露变量 S */
 defineExpose({ historyImage });
 /* 暴露变量 E */

@@ -8,20 +8,16 @@
         :rules="rules"
       >
         <n-form-item>
-          <n-popconfirm
-            positive-text="确认"
-            negative-text="取消"
-            @positive-click="submit"
-            @negative-click=""
+          <n-button
+            attr-type="submit"
+            :disabled="loading"
+            type="primary"
+            block
+            circle
+            @click="submit"
           >
-            <template #icon>
-              <SvgIcon name="article" color="var(--theme-color)"></SvgIcon>
-            </template>
-            <template #trigger>
-              <n-button attr-type="submit" type="primary" block circle> 发布 </n-button>
-            </template>
-            确认发布
-          </n-popconfirm>
+            {{ loading ? "发布中..." : "发布" }}
+          </n-button>
         </n-form-item>
         <n-form-item label="封面图" path="">
           <n-upload
@@ -57,6 +53,7 @@
 
       <WangEditor
         ref="wangEditorRef"
+        :clear="clear"
         @getHtml="getHtml"
         @getEditorImages="getEditorImages"
       />
@@ -128,22 +125,16 @@
               />
             </n-form-item>
             <n-form-item>
-              <n-popconfirm
-                positive-text="确认"
-                negative-text="取消"
-                @positive-click="submit"
-                @negative-click=""
+              <n-button
+                attr-type="submit"
+                type="primary"
+                :disabled="loading"
+                block
+                circle
+                @click="submit"
               >
-                <template #icon>
-                  <SvgIcon name="article" color="var(--theme-color)"></SvgIcon>
-                </template>
-                <template #trigger>
-                  <n-button attr-type="submit" type="primary" block circle>
-                    发布
-                  </n-button>
-                </template>
-                确认发布
-              </n-popconfirm>
+                {{ loading ? "发布中..." : "发布" }}
+              </n-button>
             </n-form-item>
           </n-form>
         </n-drawer-content>
@@ -172,10 +163,13 @@ const $message = useDiscreteApi().message;
 const { categoryInfo } = useArticle();
 
 const categoryArr = ref<object[]>([
-  ...categoryInfo.map((item) => {
+  ...categoryInfo.map(item => {
     return { value: String(item.category_id), label: item.category_name };
   }),
 ]);
+
+const clear = ref(false); // 清除编辑器内容
+const loading = ref(false);
 const formRef = ref<FormInst | null>(null);
 const wangEditorRef = ref();
 const drawerShow = ref(false);
@@ -216,10 +210,11 @@ const rules = ref({
     trigger: "change",
   },
 });
+console.log(wangEditorRef.value);
 
 watch(
   () => width.value,
-  (newVal) => {
+  newVal => {
     if (newVal > appConfig.bp.md) {
       drawerShow.value = false;
     }
@@ -227,12 +222,22 @@ watch(
   { immediate: true }
 );
 
+const clearHandler = () => {
+  form.title = "";
+  form.summary = "";
+  form.html = "";
+  form.categoryId = null;
+  form.coverFileList = [];
+  formRef.value?.restoreValidation();
+};
+
 // 提交文章数据
 const submit = (e: MouseEvent) => {
-  e.preventDefault();
   console.log(form);
+  e.preventDefault();
   formRef.value?.validate(async (err: any) => {
     if (!err) {
+      loading.value = true;
       const cover = form.coverFileList.map((item: any) => item.url);
       const params = {
         tag_id: form.tagId,
@@ -250,9 +255,17 @@ const submit = (e: MouseEvent) => {
       };
       const res = await $http.article.addArticles(params);
       if (res.code == 200) {
-        $message.success("文章发布成功");
+        setTimeout(() => {
+          clearHandler();
+          $message.success("文章发布成功");
+          loading.value = false;
+          clear.value = true; // 清除编辑器内容
+        }, 1000);
       } else {
-        $message.error("发布失败");
+        setTimeout(() => {
+          $message.error("发布失败");
+          loading.value = false;
+        }, 1000);
       }
     } else {
       console.error(err);

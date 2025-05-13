@@ -15,7 +15,7 @@ var Paul_Pio = function (prop) {
 
   // 基本配置
   const option = {
-    idol: 0, // 模型索引
+    idol: JSON.parse(localStorage.getItem("posterGirl"))?.idol || 0, // 模型索引
     timeout: undefined,
     time: 3000,
     menu: document.querySelector(".pio-container .pio-action"), // 操作栏
@@ -93,11 +93,24 @@ var Paul_Pio = function (prop) {
       dialog.classList.remove("active");
       option.timeout = clearTimeout(option.timeout) || undefined;
     },
-
     // 移除方法
     destroy: () => {
       that.initHidden();
-      localStorage.setItem("posterGirl", "0");
+    },
+    // 更新样式
+    updateStyle: (idol) => {
+      const { dialog } = elements;
+      if (idol === 0) {
+        if (window.innerWidth < 768) {
+          option.canvas.style.transform = "translateY(40px)";
+        } else {
+          option.canvas.style.transform = "translateY(60px)";
+        }
+        dialog.style.bottom = "11em";
+      } else if (idol === 1) {
+        option.canvas.style.transform = "translateY(0px)";
+        dialog.style.bottom = "calc(100% - 1.5em)";
+      }
     },
   };
 
@@ -232,8 +245,16 @@ var Paul_Pio = function (prop) {
       option.menu.appendChild(elements.skin);
       if (prop.model && prop.model.length > 1) {
         elements.skin.onclick = () => {
+          // 重新加载模型
           loadlive2d("pio", prop.model[modules.idol()]);
-          // 确保content.skin存在并且是数组再访问索引
+          modules.updateStyle(option.idol);
+          localStorage.setItem(
+            "posterGirl",
+            JSON.stringify({ status: 1, idol: option.idol })
+          );
+          //   typeof prop.update === "function"
+          //     ? prop.update(option.idol)
+          //     : eval(prop.update);
           modules.message(
             prop.content && prop.content.skin && prop.content.skin[1]
               ? prop.content.skin[1]
@@ -241,7 +262,6 @@ var Paul_Pio = function (prop) {
           );
         };
         elements.skin.onmouseover = () => {
-          // 确保content.skin存在并且是数组再访问索引
           modules.message(
             prop.content && prop.content.skin && prop.content.skin[0]
               ? prop.content.skin[0]
@@ -259,7 +279,7 @@ var Paul_Pio = function (prop) {
         );
       };
       elements.info.onmouseover = () => {
-        modules.message("想了解更多关于我的信息吗？");
+        modules.message("想了解更多关于看板娘信息吗？");
       };
 
       // 夜间模式
@@ -378,8 +398,8 @@ var Paul_Pio = function (prop) {
     if (!(prop.hidden && tools.isMobile())) {
       if (!noModel) {
         action.welcome();
-        // loadlive2d("pio", prop.model[0]);
         loadlive2d("pio", prop.model[option.idol]);
+        modules.updateStyle(option.idol);
       }
 
       switch (prop.mode) {
@@ -406,20 +426,27 @@ var Paul_Pio = function (prop) {
       option.body.style.left = null;
       option.body.style.bottom = null;
     }
-
     option.body.classList.add("hide");
     elements.dialog.classList.remove("active");
-
+    option.timeout = clearTimeout(option.timeout) || undefined;
+    localStorage.setItem(
+      "posterGirl",
+      JSON.stringify({ status: 0, idol: option.idol })
+    );
     elements.show.onclick = () => {
       option.body.classList.remove("hide");
-      localStorage.setItem("posterGirl", "1");
-
+      localStorage.setItem(
+        "posterGirl",
+        JSON.stringify({ status: 1, idol: option.idol })
+      );
       that.init();
     };
   };
 
   // 根据本地存储判断是否隐藏看板娘，0：隐藏，1：显示。
-  localStorage.getItem("posterGirl") === "0" ? this.initHidden() : this.init();
+  JSON.parse(localStorage.getItem("posterGirl"))?.status === 0
+    ? this.initHidden()
+    : this.init();
 };
 
 // 请保留版权说明

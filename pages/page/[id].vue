@@ -10,16 +10,18 @@ definePageMeta({
   title: "首页",
   middleware: [
     async (to, from) => {
-      const { getArticleList, getBanner, getCategory, sortType } = usePage();
+      const { getArticleList, getBanner, getCategory, request, sortType } = usePage();
       const { getIP } = useLocal();
       const { $nprogress } = useNuxtApp();
       try {
         $nprogress.start();
         const pageId = Number(to.params.id);
         await getIP();
-        await getArticleList({ page: pageId, orderBy: sortType }); // 默认最新排序
-        await getCategory();
-        await getBanner({ bucketName: "banner-images" });
+        await request({ page: pageId, orderBy: sortType });
+        // await getArticleList({ page: pageId, orderBy: sortType }); // 默认最新排序
+        // await getCategory();
+        // await getBanner({ bucketName: "banner-images" });
+        // await getAudio();
         $nprogress.done();
         return true;
       } catch (err) {

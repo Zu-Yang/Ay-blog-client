@@ -115,7 +115,7 @@ export default defineNuxtConfig({
   ],
 
   build: {},
-  devtools: { enabled: false },
+  devtools: { enabled: false }, // 禁用开发工具
 
   css: [
     "~/assets/css/root.css",

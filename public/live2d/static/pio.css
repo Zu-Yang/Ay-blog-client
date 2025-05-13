@@ -35,10 +35,22 @@
   display: block;
 }
 .pio-container.hide .pio-show:hover {
-  transform: translateX(1em) scale(1.05);
+  transform: scale(1.05);
 }
 .pio-container.hide .pio-show:active {
-  transform: translateX(1em) scale(0.95);
+  transform: scale(0.95);
+}
+.pio-container.left.hide .pio-show:hover {
+  transform: translateX(1.5em) scale(1.05);
+}
+.pio-container.left.hide .pio-show:active {
+  transform: translateX(1.5em) scale(0.95);
+}
+.pio-container.right.hide .pio-show:hover {
+  transform: translateX(-1.5em) scale(1.05);
+}
+.pio-container.right.hide .pio-show:active {
+  transform: translateX(-1.5em) scale(0.95);
 }
 
 .pio-container.hide #pio,
@@ -139,8 +151,7 @@
 } */
 
 .pio-container .pio-dialog {
-  bottom: 90%;
-  bottom: calc(100% - 2em);
+  bottom: calc(100% - 11em);
   opacity: 0;
   z-index: -1;
   font-size: 1em;
@@ -186,5 +197,11 @@
   }
   .pio-container {
     pointer-events: none;
+  }
+}
+@media screen and (max-width: 768px) {
+  .pio-action,
+  .pio-dialog {
+    display: none;
   }
 }
