@@ -882,7 +882,7 @@ const getCommentList = async () => {
     .then((result: any) => {
       if (result.code == 200) {
         commentList.value.push(...dataMap(result.data));
-        totalNum.value = result.total;
+        totalNum.value = result.oneLevelCount;
         oneLevelCount.value = result.oneLevelCount;
       }
     })

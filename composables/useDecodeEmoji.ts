@@ -1,14 +1,15 @@
 /* 将 Unicode 转义序列还原为Emoji->内容过多截断->匹配内容链接转a标签；注：转换顺序不能变。 */
 export const useDecodeEmoji = (content: string, limit: number = 200, isExpanded: boolean = false): string => {
-
+  // 将 Unicode 转义序列还原为Emoji
   // const decodeEmoji = content.replace(/\\u([\dA-Fa-f]{4,5})/g, (match, p1) => String.fromCodePoint(parseInt(p1, 16)))
 
-  // 添加展开状态判断
+  // 内容过多截断
   let processedContent = content;
   if (!isExpanded && content.length > limit) {
     processedContent = content.slice(0, limit) + "...";
   }
-
+  
+  // 匹配内容链接转a标签
   const withLinks = processedContent.replace(
     /(?:https?:\/\/)?((?:www\.|[\da-z-]+\.)+[\da-z-]{2,}(?:\.\w{2,})?|(?:\d{1,3}\.){3}\d{1,3}|localhost)(?::\d+)?(\/[^\s<>{}|\\^~[\]`!?:;'"`]*[^\s\/<>{}|\\^~[\]`!?:;'"`])?\/?/gi,
     (match) => {

@@ -53,7 +53,7 @@
     <!-- 侧边目录 -->
     <div class="max-lg:hidden sticky top-0">
       <MdCatalog
-        class="absolute top-(--nav-height) right-0 translate-x-full pl-5"
+        class="w-[200px] absolute top-(--nav-height) right-0 translate-x-full pl-5"
         :editorId="editorId"
         :theme="theme"
         :scrollElement="scrollElement"
@@ -141,7 +141,6 @@
           {{ articleInfo.article_summary }}
         </p>
       </div>
-
       <MdPreview
         class="rounded-xl mb-6 p-4 bg-white shadow-xl dark:bg-black"
         v-model="articleInfo.article_content"
@@ -162,7 +161,7 @@
 <script setup lang="ts">
 import { onMounted, ref, reactive, nextTick } from "vue";
 import { MdCatalog, MdPreview } from "md-editor-v3";
-import "md-editor-v3/lib/preview.css";
+
 
 /* composables S */
 const $route = useRoute();
@@ -277,4 +276,5 @@ onBeforeUnmount(() => {});
 
 // 新写法
 @use "@/assets/css/md-reset.scss";
+@import "md-editor-v3/lib/preview.css";
 </style>

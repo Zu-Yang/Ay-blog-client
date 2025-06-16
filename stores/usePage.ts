@@ -28,10 +28,10 @@ export const usePage = defineStore("page", () => {
 
       if (res[0].code == 200) {
         Object.assign(pagination, {
-          curPage: Number(res[0].page),
-          count: Number(res[0].count),
-          total: Number(res[0].total),
-          dataList: res[0].data,
+          curPage: res[0].data.page,
+          count: res[0].data.count,
+          total: res[0].data.total,
+          dataList: res[0].data.list,
         });
       }
       if (res[1].code == 200) {
@@ -57,10 +57,10 @@ export const usePage = defineStore("page", () => {
           articleTopList.value = res.data.filter((item: any) => item.article_top == 1)
         }
         const params = {
-          curPage: Number(res.page),
-          count: Number(res.count),
-          total: Number(res.total),
-          dataList: res.data,
+          curPage: Number(res.data.page),
+          count: Number(res.data.count),
+          total: Number(res.data.total),
+          dataList: res.data.list,
         };
         Object.assign(pagination, params);
       }
