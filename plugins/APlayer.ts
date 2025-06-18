@@ -1,5 +1,5 @@
-import "APlayer/dist/APlayer.min.css";
-import APlayer from "APlayer";
+import "aplayer/dist/APlayer.min.css";
+import APlayer from "aplayer";
 
 const aplayer = (option: any): void => new APlayer(option)
 
