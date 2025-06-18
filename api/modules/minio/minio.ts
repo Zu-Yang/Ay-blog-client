@@ -1,5 +1,4 @@
 import { fetch } from "~/utils/http";
-import { File, Blob } from "node:buffer";
 import type { bucket } from "../../type-interface";
 
 export default {
