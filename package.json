@@ -7,7 +7,9 @@
     "dev": "nuxt dev --dotenv .env.development",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d .nuxt"
   },
   "dependencies": {
     "@ant-design/colors": "^7.1.0",
@@ -47,6 +49,7 @@
     "@types/nprogress": "^0.2.3",
     "@vueuse/core": "^11.1.0",
     "@vueuse/nuxt": "^11.1.0",
+    "gh-pages": "^6.3.0",
     "naive-ui": "^2.40.2",
     "sass": "^1.77.8",
     "sass-loader": "^16.0.1",
