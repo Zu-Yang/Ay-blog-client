@@ -1,6 +1,7 @@
 <template>
   <div id="aplayer" class="aplayer"></div>
 </template>
+
 <script setup>
 import { isMobile } from "@/utils/utils";
 const { $APlayer } = useNuxtApp();
