@@ -11,12 +11,12 @@ definePageMeta({
   middleware: [
     async (to, from) => {
       const { getArticleList, getBanner, getCategory, request, sortType } = usePage();
-      const { getIP } = useLocal();
+      const { getLocal } = useLocal();
       const { $nprogress } = useNuxtApp();
       try {
         $nprogress.start();
         const pageId = Number(to.params.id);
-        await getIP();
+        await getLocal();
         await request({ page: pageId, orderBy: sortType });
         // await getArticleList({ page: pageId, orderBy: sortType }); // 默认最新排序
         // await getCategory();

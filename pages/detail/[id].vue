@@ -1,49 +1,28 @@
 <template>
-  <article
-    class="relative max-w-3xl min-h-dvh mx-auto pt-(--nav-height) px-4 lg:px-0 transition-transform"
-    :class="{ 'scale-98 ': showComment }"
-  >
+  <article class="relative max-w-3xl min-h-dvh mx-auto pt-(--nav-height) px-4 lg:px-0 transition-transform"
+    :class="{ 'scale-98 ': showComment }">
     <!-- 侧边按钮 -->
     <div class="max-lg:hidden sticky top-230 bottom-0">
       <div class="absolute bottom-0 -translate-x-full pr-5">
-        <div
-          id="live2d-like"
-          class="flex items-center justify-items-center flex-col cursor-pointer mb-2 select-none"
-          @click="likeHandle"
-        >
-          <SvgIcon
-            class="transition-all hover:scale-105 active:scale-95 hover:text-(--theme-color)"
-            name="thumb2"
-            size="34"
-            :color="likeStatus ? 'var(--theme-color)' : ''"
-          ></SvgIcon>
+        <div id="live2d-like" class="flex items-center justify-items-center flex-col cursor-pointer mb-2 select-none"
+          @click="likeHandle">
+          <SvgIcon class="transition-all hover:scale-105 active:scale-95 hover:text-(--theme-color)" name="thumb2"
+            size="34" :color="likeStatus ? 'var(--theme-color)' : ''"></SvgIcon>
           <div>
             {{ likeCount }}
           </div>
         </div>
-        <div
-          id="live2d-read"
-          class="flex items-center justify-items-center flex-col cursor-pointer mb-2 select-none"
-        >
-          <SvgIcon
-            class="transition-all hover:scale-105 active:scale-95 hover:text-(--theme-color)"
-            name="browse"
-            size="34"
-          />
+        <div id="live2d-read" class="flex items-center justify-items-center flex-col cursor-pointer mb-2 select-none">
+          <SvgIcon class="transition-all hover:scale-105 active:scale-95 hover:text-(--theme-color)" name="browse"
+            size="34" />
           <div>
             {{ readCount }}
           </div>
         </div>
-        <div
-          id="live2d-comment"
-          class="flex items-center justify-items-center flex-col cursor-pointer mb-2 select-none"
-          @click="showComment = true"
-        >
-          <SvgIcon
-            class="transition-all hover:scale-105 active:scale-95 hover:text-(--theme-color)"
-            name="comment"
-            size="30"
-          />
+        <div id="live2d-comment" class="flex items-center justify-items-center flex-col cursor-pointer mb-2 select-none"
+          @click="showComment = true">
+          <SvgIcon class="transition-all hover:scale-105 active:scale-95 hover:text-(--theme-color)" name="comment"
+            size="30" />
           <div>
             {{ commentCount }}
           </div>
@@ -52,13 +31,8 @@
     </div>
     <!-- 侧边目录 -->
     <div class="max-lg:hidden sticky top-0">
-      <MdCatalog
-        class="w-[200px] absolute top-(--nav-height) right-0 translate-x-full pl-5"
-        :editorId="editorId"
-        :theme="theme"
-        :scrollElement="scrollElement"
-        :scrollElementOffsetTop="0"
-      />
+      <MdCatalog class="w-[200px] absolute top-(--nav-height) right-0 translate-x-full pl-5" :editorId="editorId"
+        :theme="theme" :scrollElement="scrollElement" :scrollElementOffsetTop="0" />
     </div>
     <!-- 主题内容 -->
     <div class="w-full pt-10">
@@ -72,60 +46,33 @@
       <div class="flex justify-center mb-6">
         <span class="flex items-center mr-4">
           <SvgIcon class="mr-1" name="time" size="16" />
-          <n-time
-            :time="new Date(articleInfo.article_create_time)"
-            type="date"
-          />
+          <n-time :time="new Date(articleInfo.article_create_time)" type="date" />
         </span>
         <span class="flex items-center">
           <SvgIcon class="mr-1" name="link" size="16" />
-          <RouterLink
-            class="category"
-            :to="`/category/${articleInfo.category_id}`"
-          >
+          <RouterLink class="category" :to="`/category/${articleInfo.category_id}`">
             {{ articleInfo.category.category_name }}
           </RouterLink>
         </span>
       </div>
       <!-- 移动端顶栏 -->
-      <div
-        class="lg:hidden bottom-20 flex items-center justify-items-center justify-center mb-6"
-      >
-        <div
-          class="flex items-center justify-items-center cursor-pointer mr-4 select-none"
-          @click="showComment = true"
-        >
-          <SvgIcon
-            class="mr-1 transition-all hover:scale-105 active:scale-95 hover:text-(--theme-color)"
-            name="comment"
-            size="16"
-          />
+      <div class="lg:hidden bottom-20 flex items-center justify-items-center justify-center mb-6">
+        <div class="flex items-center justify-items-center cursor-pointer mr-4 select-none" @click="showComment = true">
+          <SvgIcon class="mr-1 transition-all hover:scale-105 active:scale-95 hover:text-(--theme-color)" name="comment"
+            size="16" />
           <span>
             {{ commentCount }}
           </span>
         </div>
-        <div
-          class="flex items-center justify-items-center cursor-pointer mr-4 select-none"
-          @click="likeHandle"
-        >
-          <SvgIcon
-            class="mr-1 transition-all hover:scale-105 active:scale-95 hover:text-(--theme-color)"
-            name="thumb2"
-            size="20"
-            :color="likeStatus ? 'var(--theme-color)' : ''"
-          ></SvgIcon>
+        <div class="flex items-center justify-items-center cursor-pointer mr-4 select-none" @click="likeHandle">
+          <SvgIcon class="mr-1 transition-all hover:scale-105 active:scale-95 hover:text-(--theme-color)" name="thumb2"
+            size="20" :color="likeStatus ? 'var(--theme-color)' : ''"></SvgIcon>
           <span class="text-center">
             {{ likeCount }}
           </span>
         </div>
-        <div
-          class="flex items-center justify-items-center cursor-pointer select-none hover:text-(--theme-color)"
-        >
-          <SvgIcon
-            class="mr-1 transition-all hover:scale-105 active:scale-95"
-            name="browse"
-            size="20"
-          />
+        <div class="flex items-center justify-items-center cursor-pointer select-none hover:text-(--theme-color)">
+          <SvgIcon class="mr-1 transition-all hover:scale-105 active:scale-95" name="browse" size="20" />
           <span>
             {{ readCount }}
           </span>
@@ -141,20 +88,12 @@
           {{ articleInfo.article_summary }}
         </p>
       </div>
-      <MdPreview
-        class="rounded-xl mb-6 p-4 bg-white shadow-xl dark:bg-black"
-        v-model="articleInfo.article_content"
-        :editorId="editorId"
-        :theme="theme"
-      />
+      <MdPreview class="rounded-xl mb-6 p-4 bg-white shadow-xl dark:bg-black" v-model="articleInfo.article_content"
+        :editorId="editorId" :theme="theme" />
     </div>
     <!-- 评论组件 -->
-    <Comment
-      :show="showComment"
-      :articleId="parseInt($route.params.id as string)"
-      @commentCount="(count) => (commentCount = count)"
-      @change="(show) => (showComment = show)"
-    ></Comment>
+    <Comment :show="showComment" :articleId="parseInt($route.params.id as string)"
+      @commentCount="(count) => (commentCount = count)" @change="(show) => (showComment = show)"></Comment>
   </article>
 </template>
 
@@ -172,7 +111,7 @@ const { message } = useDiscreteApi();
 /* 数据声明 S */
 const { navBg } = toRefs(useMenu());
 const { themeConfig } = toRefs(useTheme());
-const { getIP } = useLocal();
+const { getLocal } = useLocal();
 const { articleInfo, articleCount, visitorInfo } = useDetail();
 
 const showComment = ref<boolean>(false);
@@ -219,8 +158,7 @@ const theme = computed(() => {
  */
 const likeHandle = async () => {
   const id = parseInt($route.params.id as string);
-  const { country, short_name, province, city, area, isp, net, ip } =
-    await getIP();
+  const { country, short_name, province, city, area, isp, net, ip } = await getLocal();
   const res = await $http.article.setLikeStatus({
     country,
     short_name,
@@ -266,7 +204,7 @@ onMounted(async () => {
     title: articleInfo.article_title || "文章详情",
   });
 });
-onBeforeUnmount(() => {});
+onBeforeUnmount(() => { });
 /* 生命周期 E */
 </script>
 

@@ -52,11 +52,27 @@ export const useTheme = defineStore("theme", () => {
     return themeConfig;
   };
 
-  const setThemeConfig = (params: { color: string, dark: boolean }) => {
-    Object.assign(themeConfig, params);
-    setHtmlProperty(params)
-    setThemeOverrides(params)
-    localStorage.setItem("Ayang-blog-theme", JSON.stringify(params));
+  const setThemeConfig = (params: { color: string, dark: boolean } | null) => {
+    // 使用解构赋值从params或themeConfig中提取color和dark属性
+    // 如果params为null或undefined，则使用themeConfig作为默认值
+    // 这样可以避免空值错误，并确保总是能获取到有效的主题配置
+    const { color, dark } = params ?? themeConfig;
+
+    // 合并主题配置
+    Object.assign(themeConfig, { color, dark });
+
+    // 设置HTML属性
+    setHtmlProperty({ color, dark });
+
+    // 设置主题覆盖
+    setThemeOverrides({ color, dark });
+
+    // 持久化存储主题配置
+    try {
+      localStorage.setItem("Ayang-blog-theme", JSON.stringify({ color, dark }));
+    } catch (error) {
+      console.error("Failed to save theme config to localStorage:", error);
+    }
   };
 
   return {
