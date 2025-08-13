@@ -1,6 +1,5 @@
 import { defineStore } from "pinia";
 const $http = useHttp();
-import { getIP } from "@/utils/local";
 
 export const useDetail = defineStore("detail", () => {
   const articleInfo = reactive<any>({});
@@ -10,40 +9,32 @@ export const useDetail = defineStore("detail", () => {
     likeCount: 0,
     likeStatus: false,
   });
-  const visitorInfo = reactive({
-    likeList: [] as { article_id: number, status: boolean }[]
-  });
+  const likeList = reactive<{ article_id: number, status: boolean }[]>([])
 
-  const getDetail = async (article_id: number) => {
-    try {
-      getIP(async (ip) => {
-        const requestList = [
-          $http.article.getDetail(article_id),
-          $http.article.getCount({ article_id, ip })
-        ];
-        const res = await Promise.all(requestList)
-
-        if (res[0].code == 200) {
-          Object.assign(articleInfo, res[0].data);
-        }
-        if (res[1].code == 200) {
-          Object.assign(articleCount, {
-            commentCount: res[0].data.article_comment_count,
-            readCount: res[1].data.readCount,
-            likeCount: res[1].data.likeCount,
-            likeStatus: res[1].data.likeStatus,
-          })
-        }
-      });
-
-    } catch (error) {
-      console.error(error);
+  /** 获取文章信息 */
+  const getDetailInfo = async (article_id: number) => {
+    const res = await $http.article.getDetail(article_id);
+    if (res.code == 200) {
+      Object.assign(articleInfo, res.data);
     }
-  };
+  }
+  /** 游客对文章点赞/阅读/评论统计 */
+  const getArticleCount = async ({ article_id, user_email }: { article_id: number, user_email: string }) => {
+    const res = await $http.article.getCount({ article_id, user_email })
+    if (res.code == 200) {
+      Object.assign(articleCount, {
+        readCount: res.data.readCount,
+        likeCount: res.data.likeCount,
+        likeStatus: res.data.likeStatus,
+      });
+    }
+  }
+
   return {
     articleInfo,
     articleCount,
-    visitorInfo,
-    getDetail,
+    likeList,
+    getDetailInfo,
+    getArticleCount,
   };
 });

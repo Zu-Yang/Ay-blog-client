@@ -1,41 +1,31 @@
 import { defineStore } from "pinia";
-import { getIP } from "@/utils/local";
+import { getLocationIp } from "@/utils/local";
+
 const $http = useHttp();
 
 export const useLocal = defineStore("local", () => {
+  /**
+   * 获取定位信息
+   */
   const getLocal = async () => {
     try {
-      const str = localStorage.getItem('IP_INFO') as string;
-
-      const nowTimeStamp = new Date().getTime();
-      const oneDay = 24 * 60 * 60 * 1000; // 一天的时间戳
-
-      let shouldFetch = true;
-      if (str) {
-        const { timeStamp } = JSON.parse(str);
-        shouldFetch = nowTimeStamp > timeStamp + oneDay;
-        return JSON.parse(str);
-      }
-
-      if (shouldFetch) {
-        getIP(async (ip) => {
-
-          const res = await $http.local.getLocal({ ip });
-          console.log(res);
-
-          if (res.code == 200) {
-            const { country, short_name, province, city, area, isp, net, ip } = res.data;
-            const data = { country, short_name, province, city, area, isp, net, ip, timeStamp: nowTimeStamp };
-            localStorage.setItem('IP_INFO', JSON.stringify(data));
-
-            return res.data;
+      return new Promise<{ province: string; city: string; district: string; timestamp: number; }>((resolve, reject) => {
+        getLocationIp(async (ip_addr) => {
+          const res = await $http.local.getLocal({ ip: ip_addr });
+          if (res.code !== 200) {
+            throw new Error('获取定位信息API请求失败');
           }
-        })
-      } else {
-        return JSON.parse(str);
-      }
+          const { province, city, district } = res.data.content.address_detail;
+          resolve({
+            province,
+            city,
+            district,
+            timestamp: Date.now()
+          });
+        });
+      })
     } catch (error) {
-      console.error('Error fetching IP information:', error);
+      console.error('获取地理信息失败:', error);
       throw error;
     }
   };

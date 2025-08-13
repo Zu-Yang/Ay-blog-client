@@ -14,7 +14,7 @@ interface RTCPeerConnectionIceEvent {
   candidate: RTCIceCandidate | null;
 }
 
-export const getIP = (callback: (ip: string) => void): void => {
+export const getLocationIp = (callback: (ip: string) => void): void => {
   const ip_dups: { [key: string]: boolean } = {};
   const RTCPeerConnection = window.RTCPeerConnection;
 

@@ -5,6 +5,7 @@
     <AppFooter />
     <Drawer class="sm:block hidden" />
     <Live2d />
+    <VisitorForm />
     <!-- <APlayer /> -->
   </div>
 </template>

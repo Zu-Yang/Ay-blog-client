@@ -43,7 +43,7 @@ export const useTheme = defineStore("theme", () => {
 
   const getThemeConfig = () => {
     const themeConfig = JSON.parse(
-      localStorage.getItem("Ayang-blog-theme") as string
+      localStorage.getItem("THEME_INFO") as string
     );
     if (themeConfig) {
       Object.assign(themeConfig, themeConfig);
@@ -69,7 +69,7 @@ export const useTheme = defineStore("theme", () => {
 
     // 持久化存储主题配置
     try {
-      localStorage.setItem("Ayang-blog-theme", JSON.stringify({ color, dark }));
+      localStorage.setItem("THEME_INFO", JSON.stringify({ color, dark }));
     } catch (error) {
       console.error("Failed to save theme config to localStorage:", error);
     }

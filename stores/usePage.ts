@@ -19,12 +19,14 @@ export const usePage = defineStore("page", () => {
   const request = async (params: any) => {
     try {
       const { page, orderBy } = params;
-      const body = [
+
+      const request_body = [
         $http.article.getArticles({ page: page, orderBy: orderBy, limit: pagination.limit }),
         $http.article.getTopArticles(),
         $http.minio.getRandomBanner({ bucketName: "banner-images", prefix: "" }),
       ]
-      const res = await Promise.all(body);
+
+      const res = await Promise.all(request_body);
 
       if (res[0].code == 200) {
         Object.assign(pagination, {
@@ -78,7 +80,7 @@ export const usePage = defineStore("page", () => {
         });
       }
     } catch (error) {
-
+      console.error(error)
     }
   }
   /* 默认全屏图 prefix:"", 半屏图 prefix:"halfBanner" */

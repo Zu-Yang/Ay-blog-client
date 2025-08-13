@@ -9,8 +9,8 @@ import SvgIcon from './SvgIcon.vue';
 
 const props = defineProps({
   items: {
-    type: Array,
-    default: () => [], // 修复数组默认值的写法
+    type: String,
+    default: "[]", // 修复数组默认值的写法
   },
   title: {
     type: String,
@@ -30,6 +30,10 @@ const option = reactive({
   watchOverflow: true,
   watchSlidesProgress: true,
   effect: "slide",
+});
+
+const items = computed(() => {
+  return props.items.length ? JSON.parse(props.items) : [];
 });
 
 const mySwiper = ref(null);

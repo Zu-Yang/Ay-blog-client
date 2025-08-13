@@ -36,11 +36,19 @@ export type comment = {
 export type likeStatus = {
   article_id: number;
   status: boolean;
+  user_email: string;
+  country?: string;
+  short_name?: string;
+  province?: string;
+  city?: string;
+  area?: string;
+  isp?: string;
+  net?: string;
 };
 
 export type setCount = {
   article_id: number;
-  ip: string;
+  user_email: string;
 };
 
 export type addArticle = {

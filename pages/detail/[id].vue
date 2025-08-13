@@ -1,28 +1,26 @@
 <template>
-  <article class="relative max-w-3xl min-h-dvh mx-auto pt-(--nav-height) px-4 lg:px-0 transition-transform"
-    :class="{ 'scale-98 ': showComment }">
+  <article class="relative max-w-3xl min-h-dvh mx-auto pt-(--nav-height) px-4 lg:px-0 transition-transform duration-600"
+    :class="{ '-translate-y-24': showComment }">
     <!-- 侧边按钮 -->
     <div class="max-lg:hidden sticky top-230 bottom-0">
       <div class="absolute bottom-0 -translate-x-full pr-5">
         <div id="live2d-like" class="flex items-center justify-items-center flex-col cursor-pointer mb-2 select-none"
-          @click="likeHandle">
-          <SvgIcon class="transition-all hover:scale-105 active:scale-95 hover:text-(--theme-color)" name="thumb2"
-            size="34" :color="likeStatus ? 'var(--theme-color)' : ''"></SvgIcon>
+          @click="likeHandle(likeStatus)">
+          <SvgIcon class="transition-all hover:scale-105 active:scale-95" name="thumb2" size="34"
+            :color="likeStatus ? 'var(--theme-color)' : ''"></SvgIcon>
           <div>
             {{ likeCount }}
           </div>
         </div>
         <div id="live2d-read" class="flex items-center justify-items-center flex-col cursor-pointer mb-2 select-none">
-          <SvgIcon class="transition-all hover:scale-105 active:scale-95 hover:text-(--theme-color)" name="browse"
-            size="34" />
+          <SvgIcon class="transition-all hover:scale-105 active:scale-95" name="browse" size="34" />
           <div>
             {{ readCount }}
           </div>
         </div>
         <div id="live2d-comment" class="flex items-center justify-items-center flex-col cursor-pointer mb-2 select-none"
           @click="showComment = true">
-          <SvgIcon class="transition-all hover:scale-105 active:scale-95 hover:text-(--theme-color)" name="comment"
-            size="30" />
+          <SvgIcon class="transition-all hover:scale-105 active:scale-95)" name="comment" size="30" />
           <div>
             {{ commentCount }}
           </div>
@@ -51,27 +49,27 @@
         <span class="flex items-center">
           <SvgIcon class="mr-1" name="link" size="16" />
           <RouterLink class="category" :to="`/category/${articleInfo.category_id}`">
-            {{ articleInfo.category.category_name }}
+            {{ articleInfo.category?.category_name }}
           </RouterLink>
         </span>
       </div>
       <!-- 移动端顶栏 -->
       <div class="lg:hidden bottom-20 flex items-center justify-items-center justify-center mb-6">
         <div class="flex items-center justify-items-center cursor-pointer mr-4 select-none" @click="showComment = true">
-          <SvgIcon class="mr-1 transition-all hover:scale-105 active:scale-95 hover:text-(--theme-color)" name="comment"
-            size="16" />
+          <SvgIcon class="mr-1 transition-all hover:scale-105 active:scale-95" name="comment" size="16" />
           <span>
             {{ commentCount }}
           </span>
         </div>
-        <div class="flex items-center justify-items-center cursor-pointer mr-4 select-none" @click="likeHandle">
-          <SvgIcon class="mr-1 transition-all hover:scale-105 active:scale-95 hover:text-(--theme-color)" name="thumb2"
-            size="20" :color="likeStatus ? 'var(--theme-color)' : ''"></SvgIcon>
-          <span class="text-center">
+        <div class="flex items-center justify-items-center cursor-pointer mr-4 select-none"
+          @click="likeHandle(likeStatus)">
+          <SvgIcon class="mr-1 transition-all hover:scale-105 active:scale-95" name="thumb2" size="20"
+            :color="likeStatus ? 'var(--theme-color)' : ''"></SvgIcon>
+          <span>
             {{ likeCount }}
           </span>
         </div>
-        <div class="flex items-center justify-items-center cursor-pointer select-none hover:text-(--theme-color)">
+        <div class="flex items-center justify-items-center cursor-pointer select-none">
           <SvgIcon class="mr-1 transition-all hover:scale-105 active:scale-95" name="browse" size="20" />
           <span>
             {{ readCount }}
@@ -93,14 +91,14 @@
     </div>
     <!-- 评论组件 -->
     <Comment :show="showComment" :articleId="parseInt($route.params.id as string)"
-      @commentCount="(count) => (commentCount = count)" @change="(show) => (showComment = show)"></Comment>
+      @commentCount="count => (commentCount = count)" @change="show => (showComment = show)">
+    </Comment>
   </article>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref, reactive, nextTick } from "vue";
 import { MdCatalog, MdPreview } from "md-editor-v3";
-
 
 /* composables S */
 const $route = useRoute();
@@ -112,13 +110,15 @@ const { message } = useDiscreteApi();
 const { navBg } = toRefs(useMenu());
 const { themeConfig } = toRefs(useTheme());
 const { getLocal } = useLocal();
-const { articleInfo, articleCount, visitorInfo } = useDetail();
+const { articleInfo, articleCount, likeList } = toRefs(useDetail());
+const storeVisitor = useVisitor();
+const { showVisitorForm } = storeToRefs(storeVisitor);
 
 const showComment = ref<boolean>(false);
-const readCount = ref<number>(articleCount.readCount);
-const likeCount = ref<number>(articleCount.likeCount);
-const likeStatus = ref<boolean>(articleCount.likeStatus);
-const commentCount = ref<number>(articleCount.commentCount);
+const readCount = ref<number>(articleCount.value.readCount);
+const likeCount = ref<number>(articleCount.value.likeCount);
+const likeStatus = ref<boolean>(articleCount.value.likeStatus);
+const commentCount = ref<number>(articleCount.value.commentCount);
 const editorId = "preview-only";
 const scrollElement = document.documentElement;
 /* 数据声明 E */
@@ -127,14 +127,20 @@ const scrollElement = document.documentElement;
 definePageMeta({
   middleware: [
     async (to, from) => {
-      const { getDetail } = useDetail();
+      const { getDetailInfo, getArticleCount } = useDetail();
       const { $nprogress } = useNuxtApp();
+      const { getVisitorInfo } = useVisitor();
+      const visitorInfo = getVisitorInfo()
       try {
         $nprogress.start();
-        const id = parseInt(to.params.id as string);
-        await getDetail(id);
+        const article_id = Number(to.params.id as string);
+        if (article_id) {
+          await getDetailInfo(article_id);
+        }
+        if (article_id && visitorInfo) {
+          await getArticleCount({ article_id, user_email: visitorInfo.user_email });
+        }
         $nprogress.done();
-        return true;
       } catch (error) {
         $nprogress.done();
         console.error(error);
@@ -153,41 +159,45 @@ const theme = computed(() => {
 });
 
 /**
+ * 验证邮箱格式
+ */
+const isValidEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+/**
  * 点赞
  * @returns
  */
-const likeHandle = async () => {
-  const id = parseInt($route.params.id as string);
-  const { country, short_name, province, city, area, isp, net, ip } = await getLocal();
+const likeHandle = async (status: boolean) => {
+  const info = storeVisitor.getVisitorInfo();
+  if (!info) {
+    showVisitorForm.value = true;
+    return;
+  };
+
+  const id = Number($route.params.id as string);
   const res = await $http.article.setLikeStatus({
-    country,
-    short_name,
-    province,
-    city,
-    area,
-    isp,
-    net,
-    ip,
+    user_email: info.user_email,
     article_id: id,
-    status: !likeStatus.value,
+    status: !status,
   });
 
   if (res.code == 200) {
-    visitorInfo.likeList.push({
+    likeList.value.push({
       article_id: id,
-      status: !likeStatus.value,
+      status: !status,
     });
-    likeStatus.value = !likeStatus.value;
+    likeStatus.value = !status;
     switch (likeStatus.value) {
       case true:
         likeCount.value += 1;
-        console.log(likeCount.value); // 打印likeCount.value，以检查其值是否正确
-        message.success("点赞成功");
+        // message.success("点赞成功");
         break;
       case false:
         likeCount.value -= 1;
-        console.log(likeCount.value); // 打印likeCount.value，以检查其值是否正确
-        message.success("取消点赞");
+        // message.success("取消点赞");
         break;
 
       default:
@@ -201,7 +211,7 @@ const likeHandle = async () => {
 onMounted(async () => {
   navBg.value = true; // 设置menu背景
   useHead({
-    title: articleInfo.article_title || "文章详情",
+    title: articleInfo.value.article_title || "文章详情",
   });
 });
 onBeforeUnmount(() => { });

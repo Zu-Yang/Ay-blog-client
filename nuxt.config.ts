@@ -34,6 +34,9 @@ export default defineNuxtConfig({
       baseURL: process.env.NUXT_PUBLIC_API_BASE, // nestjs api地址
       imageBaseURL: process.env.MINIO_ARTICLE_IMAGE_API_BASE, // minio api地址
     },
+    // app: {
+    //   baseURL: process.env.NUXT_PUBLIC_API_BASE, // nestjs api地址
+    // },
   },
 
   imports: {
@@ -127,10 +130,20 @@ export default defineNuxtConfig({
   // https://nuxt.com/docs/api/configuration/nuxt-config
   // compatibilityDate: "2024-09-13",
   nitro: {
+    output: {
+      dir: "./dist", // 打包路径
+      publicDir: "./dist/public", // 静态资源打包路径
+      serverDir: "./dist/server", // 服务打包路径
+    },
+    // 预渲染
+    prerender: {
+      crawlLinks: true,
+      routes: ["/page/1"],
+    },
     devProxy: {
       "/api": {
-        target: "http://10.4.32.45:3000",
-        // target: process.env.NUXT_PUBLIC_API_BASE,
+        // target: "http://10.4.32.45:3000",
+        target: process.env.NUXT_PUBLIC_API_BASE,
         changeOrigin: true,
       },
     },

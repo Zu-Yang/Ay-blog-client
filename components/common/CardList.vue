@@ -1,6 +1,6 @@
 <template>
   <div class="m-auto mx-auto max-w-256 px-4 pt-6">
-    <div class="mb-10">
+    <div v-if="articleTopPageList.length" class="mb-10">
       <div class="flex mb-6">
         <div :class="[
           'mr-2 px-4 py-1 rounded-2xl cursor-pointer bg-(--button-bg) shadow-[0px_5px_15px_-3px_var(--button-bg)]) transition-all active:scale-95',
@@ -14,8 +14,7 @@
           {{ item.title }}
         </div>
       </div>
-      <div v-if="articleTopList.length" class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-        v-auto-animate="{ duration: 500 }">
+      <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" v-auto-animate="{ duration: 500 }">
         <!-- 需要将 v-auto-animate 移到n-grid-item的父容器，并确保n-grid-item每个项的key是唯一的，比如使用数据ID而非索引。 -->
         <div id="scroll-animation" v-for="(data, index) in articleTopPageList" :key="data.article_id">
           <div
@@ -45,19 +44,12 @@
                 <!-- 时间部分 -->
                 <div class="flex justify-end items-center space-x-1 text-[var(--color2)] absolute bottom-0 right-0">
                   <SvgIcon name="time" size="14" class="shrink-0" />
-                  <n-time :time="Number(data.article_create_time)" format="yyyy-MM-dd" class="text-sm" />
+                  <n-time :time="new Date(data.article_create_time)" format="yyyy-MM-dd" class="text-sm" />
                 </div>
               </div>
             </nuxt-link>
           </div>
         </div>
-      </div>
-      <div v-else>
-        <n-result status="404" title="" description="">
-          <template #icon>
-            <svg-icon name="empty" size="400"></svg-icon>
-          </template>
-        </n-result>
       </div>
       <div class="flex justify-center mt-6">
         <div v-if="articleTopPageList.length <= articleTopList.length && articleTopPageList.length > 3" :class="[
@@ -108,7 +100,7 @@
                 <!-- 时间部分 -->
                 <div class="flex justify-end items-center space-x-1 text-[var(--color2)] absolute bottom-0 right-0">
                   <SvgIcon name="time" size="14" class="shrink-0" />
-                  <n-time :time="Number(data.article_create_time)" format="yyyy-MM-dd" class="text-sm" />
+                  <n-time :time="new Date(data.article_create_time)" format="yyyy-MM-dd" class="text-sm" />
                 </div>
               </div>
             </nuxt-link>
@@ -133,8 +125,7 @@
 import { ref } from "vue";
 const $router = useRouter();
 const $usePage = usePage();
-const { pagination, category, sortType, topType, articleTopList } =
-  toRefs($usePage);
+const { pagination, category, sortType, topType, articleTopList } = toRefs($usePage);
 
 const pageNum = ref<number>(1); // 当前页码
 const limitNum = ref<number>(3); // 每页显示的数量

@@ -6,20 +6,22 @@
       backgroundColor: 'var(--comment-bg-color)',
       backdropFilter: 'blur(16px)',
       overflow: 'hidden',
-      borderTopLeftRadius: '0',
-      borderTopRightRadius: '0',
+      borderTopLeftRadius: screenWidth < appConfig.bp.md ? '16px' : '16px',
+      borderTopRightRadius: screenWidth < appConfig.bp.md ? '16px' : '0px',
+      borderBottomLeftRadius: screenWidth > appConfig.bp.md ? '16px' : '0px',
+      borderBottomRightRadius: screenWidth > appConfig.bp.md ? '0px' : '0px',
     }">
     <n-drawer-content closable :body-style="{}" :body-content-style="{
       height: '100%',
       overflow: 'hidden',
       padding: '16px 0px 0px 0px',
     }" :header-style="{
-        borderBottom: 'none',
-      }" :footer-style="{
-        position: 'relative',
-        borderTop: 'none',
-        padding: '16px',
-      }">
+      borderBottom: 'none',
+    }" :footer-style="{
+      position: 'relative',
+      borderTop: 'none',
+      padding: '16px',
+    }">
       <template #header>
         <div class="text-center">{{ totalNum }}条评论</div>
       </template>
@@ -35,9 +37,9 @@
             <n-tab-pane v-for="(category, index) in emojiList" :name="index" :tab="category.categoryName" :key="index">
               <div
                 class="grid grid-cols-10 gap-y-[5px] justify-between items-center justify-items-center overflow-auto h-full scrollbar-thin">
-                <div class="transition-all border border-transparent hover:border-[var(--theme-color)]"
+                <div class="transition-transform border border-transparent hover:border-(--theme-color)"
                   v-for="(item, index) in category.emojiList" :key="index" @click="insertEmoji($event)">
-                  <i class="inline-block not-italic text-[22px] cursor-pointer transition-transform select-none active:scale-95"
+                  <i class="inline-block not-italic text-[22px] cursor-pointer select-none active:scale-90"
                     :title="item.name" v-html="item.htmlCode[0]" :data-htmlCode="item.htmlCode"></i>
                 </div>
               </div>
@@ -326,14 +328,13 @@
 <script setup lang="ts">
 import { emojiData } from "~/assets/js/emoji";
 import { v4 } from "uuid";
-import type { FormInst, FormItemRule } from "naive-ui";
-import { getIP } from "@/utils/local";
-
+import type { FormInst, FormItemRule, DrawerPlacement } from "naive-ui";
 
 const appConfig = useAppConfig();
-const { width, height } = useWindowSize();
+const { width } = useWindowSize();
 const { message } = useDiscreteApi();
 const $http = useHttp();
+const { getVisitorInfo, saveVisitorInfo } = useVisitor();
 
 const $emit = defineEmits(["change", "commentCount"]);
 
@@ -348,7 +349,7 @@ const props = defineProps({
   },
 });
 
-const placement = ref("right");
+const placement = ref<DrawerPlacement>("right");
 const screenWidth = ref(width);
 const limitContentNum = ref(100);
 const replyLavel = ref(0);
@@ -467,9 +468,34 @@ const toggleReply = ($event: Event, isExpanded: Boolean) => {
   }
 };
 
+// 检查并获取访客信息
+const checkVisitorInfo = async (): Promise<boolean> => {
+  const visitorInfo = getVisitorInfo();
+  if (visitorInfo) {
+    // 如果有访客信息，自动填充表单
+    Object.assign(paramsForm.value.user, {
+      name: visitorInfo.nick_name,
+      email: visitorInfo.user_email,
+      jumpUrl: visitorInfo.user_jump_url || ""
+    });
+    return true;
+  }
+
+  // 如果没有访客信息，显示表单让用户填写
+  showForm.value = true;
+  message.info("请先填写您的基本信息");
+  return false;
+};
+
 // formRef1表单验证
 const handleValidate = () => {
   return new Promise(async (resolve, reject) => {
+    // 首先检查访客信息
+    const hasVisitorInfo = await checkVisitorInfo();
+    if (!hasVisitorInfo) {
+      return reject(false);
+    }
+
     await formRef1.value?.validate((errors) => {
       if (errors) {
         message.error("请填写正确信息");
@@ -839,9 +865,9 @@ watch(
 onMounted(async () => {
   await getCommentList();
   await getLocal();
-  getIP((ip) => {
-    localIP.value = ip
-  })
+  // getIP((ip) => {
+  //   localIP.value = ip
+  // })
   filterEmoji(emojiData);
   nextTick(() => {
     resizeTextarea();

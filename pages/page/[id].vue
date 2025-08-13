@@ -16,12 +16,7 @@ definePageMeta({
       try {
         $nprogress.start();
         const pageId = Number(to.params.id);
-        await getLocal();
         await request({ page: pageId, orderBy: sortType });
-        // await getArticleList({ page: pageId, orderBy: sortType }); // 默认最新排序
-        // await getCategory();
-        // await getBanner({ bucketName: "banner-images" });
-        // await getAudio();
         $nprogress.done();
         return true;
       } catch (err) {

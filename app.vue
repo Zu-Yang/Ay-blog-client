@@ -1,18 +1,14 @@
 <template>
-  <n-config-provider
-    inline-theme-disabled
-    :locale="zhCN"
-    :date-locale="dateZhCN"
-    :theme="themeMode"
-    :theme-overrides="themeOverrides"
-    class="bg-grid"
-  >
-    <n-global-style />
-    <NuxtLayout>
-      <NuxtLoadingIndicator />
-      <NuxtPage keepalive />
-    </NuxtLayout>
-    <!-- <n-back-top /> -->
+  <n-config-provider inline-theme-disabled :locale="zhCN" :date-locale="dateZhCN" :theme="themeMode"
+    :theme-overrides="themeOverrides" class="bg-grid">
+    <n-message-provider>
+      <n-global-style />
+      <NuxtLayout>
+        <NuxtLoadingIndicator />
+        <NuxtPage keepalive />
+      </NuxtLayout>
+      <!-- <n-back-top /> -->
+    </n-message-provider>
   </n-config-provider>
 </template>
 <script setup lang="ts">
